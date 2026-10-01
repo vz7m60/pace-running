@@ -99,34 +99,37 @@
     .plan-item h3 { margin: 14px 0 7px; font-size: 15px; }
     .plan-item p { margin: 0; color: var(--muted); font-size: 11px; }
     .plan-tag { display: inline-block; margin-top: 15px; padding: 5px 7px; background: #edf1d9; color: #535b37; font: 9px var(--mono); }
-    dialog { width: min(900px, calc(100% - 32px)); max-width: 900px; max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid #384139; color: #f3f5ed; background: #19201b; box-shadow: 0 28px 100px #080b08aa; }
-    dialog::backdrop { background: #101510c9; backdrop-filter: blur(6px); }
-    .run-modal { display: grid; grid-template-columns: minmax(240px, .82fr) minmax(0, 1.18fr); grid-template-areas: "top top" "status map" "clock map" "metrics map" "note note" "actions actions"; align-items: center; gap: 18px 30px; padding: 28px 32px 26px; }
-    .modal-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 1px solid #39413a; }
-    .modal-top .eyebrow { color: #c1cdaf; }
-    .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #414a42; background: transparent; color: #f3f5ed; font-size: 22px; cursor: pointer; }
-    .close-button:hover { background: #303a31; }
-    .run-status { grid-area: status; align-self: end; margin: 0; color: #d7f36a; font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
-    .run-clock { grid-area: clock; align-self: center; min-height: 1em; color: #f5f7ef; font: clamp(60px, 8vw, 88px) var(--mono); letter-spacing: -.07em; font-variant-numeric: tabular-nums; transition: color .2s; }
-    .run-clock.countdown-number { color: #d7f36a; font-size: clamp(106px, 14vw, 150px); line-height: .9; letter-spacing: -.04em; animation: count-in .32s cubic-bezier(.2,.8,.2,1) both; }
+    dialog { width: min(900px, calc(100% - 32px)); max-width: 900px; max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid #d8ddd3; color: var(--ink); background: var(--white); box-shadow: 0 24px 90px #10151055; }
+    dialog::backdrop { background: #182019a8; backdrop-filter: blur(5px); }
+    .run-modal { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "top top" "status status" "clock metrics" "map map" "note note" "actions actions"; align-items: center; gap: 15px 24px; padding: 26px 30px 24px; }
+    .modal-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .modal-top .eyebrow { color: var(--muted); }
+    .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 22px; cursor: pointer; }
+    .close-button:hover { background: #edf0e8; }
+    .run-status { grid-area: status; display: flex; align-items: center; gap: 8px; align-self: end; margin: 0; color: var(--muted); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+    .run-status::before { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #a4aa9e; content: ""; }
+    .run-status[data-state="live"]::before { background: var(--orange); box-shadow: 0 0 0 4px #f2654525; }
+    .run-clock { grid-area: clock; align-self: center; min-height: 1em; color: var(--ink); font: 600 clamp(60px, 7vw, 84px) var(--sans); letter-spacing: -.04em; font-variant-numeric: tabular-nums; transition: color .2s; }
+    .run-clock.countdown-number { color: var(--orange); font-size: clamp(110px, 14vw, 140px); font-weight: 800; line-height: .9; letter-spacing: -.04em; animation: count-in .32s cubic-bezier(.2,.8,.2,1) both; }
     @keyframes count-in { from { opacity: .35; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
-    .run-metrics { grid-area: metrics; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 16px 0 4px; border-top: 1px solid #39413a; }
-    .run-metric { min-height: 64px; padding: 10px 8px 8px 0; }
-    .run-metric:nth-child(even) { padding-left: 14px; border-left: 1px solid #39413a; }
-    .run-metric-label { color: #9ba69a; font-size: 10px; }
-    .run-metric-value { margin-top: 7px; color: #f5f7ef; font: 18px var(--mono); white-space: nowrap; }
-    .run-metric-unit { color: #aeb8a8; font: 9px var(--sans); }
-    .location-note { grid-area: note; min-height: 18px; color: #b0baad; font-size: 10px; }
-    .route-map { grid-area: map; position: relative; height: 100%; min-height: 310px; margin: 0; overflow: hidden; background: #e5e8dd; border: 1px solid #3a443a; }
-    .route-map-placeholder { position: absolute; inset: 0; z-index: 400; display: grid; place-content: center; gap: 7px; color: #687064; text-align: center; font-size: 12px; pointer-events: none; }
+    .run-metrics { grid-area: metrics; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 12px 10px; border: 0; background: #f2f4ed; }
+    .run-metric { min-height: 58px; padding: 7px 8px; }
+    .run-metric + .run-metric { border-left: 1px solid #d9ded4; }
+    .run-metric-label { color: var(--muted); font-size: 10px; }
+    .run-metric-value { margin-top: 7px; color: var(--ink); font: 700 18px var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .run-metric-unit { color: var(--muted); font: 9px var(--sans); }
+    .location-note { grid-area: note; min-height: 18px; color: var(--muted); font-size: 10px; }
+    .route-map { grid-area: map; position: relative; height: clamp(200px, 31vh, 290px); min-height: 200px; margin: 0; overflow: hidden; border: 1px solid #d9ded4; background-color: #edf1e9; }
+    .route-map-placeholder { position: absolute; inset: 0; z-index: 400; display: grid; place-content: center; gap: 7px; color: #495247; background-color: #edf1e9; background-image: linear-gradient(#dfe6dc 1px, transparent 1px), linear-gradient(90deg, #dfe6dc 1px, transparent 1px); background-size: 36px 36px; text-align: center; font-size: 12px; pointer-events: none; }
+    .route-map-placeholder::before { margin-bottom: 2px; color: var(--orange); content: "◎"; font-size: 27px; }
     .route-map-placeholder[hidden] { display: none; }
     .route-map-placeholder span { color: #899082; font-size: 10px; }
     .route-map .leaflet-control-attribution { font-size: 9px; }
-    .modal-actions { grid-area: actions; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding-top: 15px; border-top: 1px solid #39413a; }
-    .modal-actions button { min-height: 48px; border: 1px solid #546050; background: transparent; color: #f3f5ed; font-size: 12px; font-weight: 700; cursor: pointer; transition: background .18s, color .18s; }
-    .modal-actions button:hover:not(:disabled) { background: #303a31; }
-    .modal-actions button.primary { border-color: #d7f36a; background: #d7f36a; color: #19201b; }
-    .modal-actions button.primary:hover:not(:disabled) { background: #e3ff7c; }
+    .modal-actions { grid-area: actions; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
+    .modal-actions button { min-height: 48px; border: 1px solid #cfd5ca; background: transparent; color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; transition: background .18s, color .18s; }
+    .modal-actions button:hover:not(:disabled) { background: #edf0e8; }
+    .modal-actions button.primary { border-color: var(--ink); background: var(--ink); color: white; }
+    .modal-actions button.primary:hover:not(:disabled) { background: #384138; }
     .modal-actions button:disabled { opacity: .4; cursor: default; }
     .toast { position: fixed; bottom: 24px; left: 50%; z-index: 5; padding: 12px 18px; background: var(--ink); color: white; font-size: 12px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; transition: .25s; }
     .toast.show { transform: translate(-50%, 0); opacity: 1; }
@@ -155,15 +158,18 @@
       .stat-label { font-size: 10px; }
       .stat-unit { display: block; margin: 4px 0 0; font-size: 9px; }
       .lower { grid-template-columns: 1fr; gap: 24px; }
-      dialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px); }
-      .run-modal { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "map" "note" "actions"; gap: 12px; padding: 18px; }
-      .modal-top { padding-bottom: 11px; }
+      dialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; overflow: auto; border: 0; }
+      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "map" "note" "actions"; align-content: stretch; gap: 10px; padding: max(18px, env(safe-area-inset-top)) 18px max(16px, env(safe-area-inset-bottom)); }
+      .modal-top { padding-bottom: 10px; }
       .run-status { align-self: auto; margin-top: 2px; }
-      .run-clock { font-size: clamp(58px, 17vw, 76px); }
-      .run-clock.countdown-number { font-size: clamp(112px, 34vw, 140px); }
-      .run-metrics { padding-top: 10px; }
-      .route-map { min-height: 220px; height: 28dvh; max-height: 290px; }
-      .modal-actions { gap: 7px; padding-top: 12px; }
+      .run-clock { font-size: clamp(58px, 16vw, 74px); }
+      .run-clock.countdown-number { font-size: clamp(112px, 36vw, 136px); }
+      .run-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 8px; }
+      .run-metric { min-height: 52px; padding: 7px 8px; }
+      .run-metric:nth-child(even) { border-left: 1px solid #d9ded4; }
+      .run-metric:nth-child(n+3) { border-top: 1px solid #d9ded4; }
+      .route-map { min-height: 180px; height: 23dvh; max-height: 220px; }
+      .modal-actions { gap: 7px; margin-top: auto; padding-top: 11px; }
       .modal-actions button { min-height: 46px; padding: 0 5px; font-size: 11px; }
       .plan-grid { grid-template-columns: 1fr; }
       .records-list { padding: 0 16px; }
@@ -251,7 +257,7 @@
   <dialog id="run-dialog">
     <div class="run-modal">
       <div class="modal-top"><span class="eyebrow">PACE / OUTDOOR RUN</span><button class="close-button" id="close-run" aria-label="닫기">×</button></div>
-      <div class="run-status" id="run-status">READY WHEN YOU ARE</div>
+      <div class="run-status" id="run-status" data-state="ready">READY WHEN YOU ARE</div>
       <div class="run-clock" id="run-clock" aria-live="polite">00:00:00</div>
       <div class="run-metrics">
         <div class="run-metric"><div class="run-metric-label">거리</div><div class="run-metric-value"><span id="run-distance">0.00</span> km</div></div>
@@ -506,6 +512,7 @@
       $("#run-clock").classList.remove("countdown-number");
       updateRunDisplay();
       $("#run-status").textContent = "RUN IN PROGRESS";
+      $("#run-status").dataset.state = "live";
       $("#start-run").textContent = "러닝 재개";
       $("#pause-run").disabled = false;
       $("#finish-run").disabled = false;
@@ -527,6 +534,7 @@
       $("#run-clock").classList.remove("countdown-number");
       $("#run-clock").textContent = formatDuration(elapsedSeconds);
       $("#run-status").textContent = "READY WHEN YOU ARE";
+      $("#run-status").dataset.state = "ready";
       $("#start-run").textContent = "러닝 시작";
     }
 
@@ -544,8 +552,8 @@
     function playCountdownBeep(onended) {
       const audioContext = countdownAudioContext;
       if (!audioContext || audioContext.state === "closed") {
-        if (navigator.vibrate) navigator.vibrate(120);
-        setTimeout(onended, 220);
+        if (navigator.vibrate) navigator.vibrate(180);
+        setTimeout(onended, 560);
         return;
       }
 
@@ -553,10 +561,11 @@
       const gain = audioContext.createGain();
       const startTime = audioContext.currentTime;
       oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(880, startTime);
+      oscillator.frequency.setValueAtTime(1320, startTime);
       gain.gain.setValueAtTime(0.0001, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.18, startTime + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.2);
+      gain.gain.exponentialRampToValueAtTime(0.22, startTime + 0.025);
+      gain.gain.setValueAtTime(0.22, startTime + 0.38);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.54);
       oscillator.connect(gain);
       gain.connect(audioContext.destination);
       oscillator.onended = () => {
@@ -569,13 +578,14 @@
         onended();
       };
       oscillator.start(startTime);
-      oscillator.stop(startTime + 0.21);
+      oscillator.stop(startTime + 0.56);
     }
 
     function speakCountdownStep(steps, index) {
       if (!isCountdownActive) return;
       if (index >= steps.length) {
         $("#run-status").textContent = "START!";
+        $("#run-status").dataset.state = "countdown";
         $("#run-clock").classList.remove("countdown-number");
         void $("#run-clock").offsetWidth;
         $("#run-clock").classList.add("countdown-number");
@@ -601,6 +611,7 @@
         runClock.textContent = formatDuration(elapsedSeconds);
       }
       $("#run-status").textContent = index === 0 ? "러닝을 시작합니다" : `카운트다운 ${phrase}`;
+      $("#run-status").dataset.state = index === 0 ? "intro" : "countdown";
       const nextStep = () => {
         if (!isCountdownActive) return;
         countdownTimeoutId = setTimeout(() => speakCountdownStep(steps, index + 1), 350);
@@ -642,6 +653,7 @@
       stopLocationWatch();
       stopCadenceSensor();
       $("#run-status").textContent = "PAUSED · CATCH YOUR BREATH";
+      $("#run-status").dataset.state = "paused";
       $("#pause-run").textContent = "일시 정지됨";
       $("#pause-run").disabled = true;
       $("#start-run").textContent = "러닝 재개";
@@ -670,6 +682,7 @@
       $("#route-map-placeholder").innerHTML = 'GPS 연결을 기다리고 있어요<span>러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다</span>';
       updateRunDisplay();
       $("#run-status").textContent = "READY WHEN YOU ARE";
+      $("#run-status").dataset.state = "ready";
       $("#start-run").textContent = "러닝 시작";
       $("#pause-run").textContent = "일시 정지";
       $("#pause-run").disabled = true;
