@@ -107,6 +107,8 @@
     .run-modal[data-phase="countdown"] { grid-template-areas: "top" "status" "elapsed" "actions"; align-content: center; min-height: 460px; }
     .modal-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
     .modal-top .eyebrow { color: var(--muted); }
+    .modal-top-actions { display: flex; gap: 7px; }
+    .run-info-button { width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 18px; cursor: pointer; }
     .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 22px; cursor: pointer; }
     .close-button:hover { background: #edf0e8; }
     .run-status { grid-area: status; display: flex; align-items: center; gap: 8px; align-self: end; margin: 0; color: var(--muted); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
@@ -175,6 +177,14 @@
     .cadence-range { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); }
     .cadence-toggle { min-height: 30px; padding: 0 10px; border: 1px solid #cfd5ca; background: white; color: var(--muted); font: 10px var(--sans); cursor: pointer; }
     .cadence-toggle[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
+    .voice-guide { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 6px 12px; margin-top: 8px; padding: 10px 12px; border: 1px solid var(--line); background: #f7f8f3; }
+    .voice-guide-copy { display: grid; gap: 3px; }
+    .voice-guide-copy strong { color: var(--ink); font-size: 11px; }
+    .voice-guide-copy small { color: var(--muted); font-size: 9px; }
+    .voice-toggle { min-height: 30px; padding: 0 10px; border: 1px solid #cfd5ca; background: white; color: var(--muted); font: 10px var(--sans); cursor: pointer; }
+    .voice-toggle[aria-pressed="true"] { border-color: #174f3c; background: #174f3c; color: white; }
+    .voice-guide label { color: var(--muted); font-size: 9px; }
+    .voice-guide select { max-width: 140px; min-height: 30px; padding: 0 8px; border: 1px solid var(--line); background: white; color: var(--ink); font: 10px var(--sans); }
     .run-tabs { grid-area: tabs; display: flex; gap: 3px; padding: 3px; background: #eef1e9; }
     .run-tab { flex: 1; min-height: 38px; border: 0; background: transparent; color: var(--muted); font: 600 11px var(--sans); cursor: pointer; }
     .run-tab.active { background: white; color: var(--ink); box-shadow: 0 1px 4px #20231f1a; }
@@ -200,6 +210,23 @@
     .run-tool small { color: var(--muted); font-size: 9px; }
     .run-tool:disabled { opacity: .45; cursor: default; }
     .run-tool[aria-pressed="true"] { border-color: #91ae9d; background: #e8f0e9; }
+    .touch-lock-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 22px; background: #f3f1e8f2; color: var(--ink); backdrop-filter: blur(8px); }
+    .touch-lock-overlay[hidden] { display: none; }
+    .touch-lock-content { display: grid; justify-items: center; gap: 10px; width: min(320px, 100%); text-align: center; }
+    .touch-lock-symbol { color: #174f3c; font-size: 30px; }
+    .touch-lock-content strong { font-size: 20px; }
+    .touch-lock-content p { margin: 0 0 8px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .unlock-hold { position: relative; width: 100%; min-height: 52px; overflow: hidden; border: 1px solid #174f3c; background: white; color: #174f3c; font: 700 12px var(--sans); touch-action: none; user-select: none; }
+    .unlock-hold span { position: relative; z-index: 1; }
+    .unlock-hold i { position: absolute; inset: 0 auto 0 0; width: 0; background: #dce9df; }
+    .safety-dialog { width: min(600px, calc(100% - 24px)); max-width: 600px; max-height: calc(100dvh - 24px); overflow: auto; }
+    .safety-content { padding: 22px 24px; }
+    .safety-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .safety-heading h2 { margin: 0; font-size: 18px; }
+    .safety-content section { padding: 11px 0; border-top: 1px solid var(--line); }
+    .safety-content h3 { margin: 0 0 5px; font-size: 12px; }
+    .safety-content p { margin: 0; color: #5d655b; font-size: 11px; line-height: 1.65; }
+    .safety-confirm { width: 100%; min-height: 44px; margin-top: 10px; border: 0; background: var(--ink); color: white; font-size: 12px; font-weight: 700; cursor: pointer; }
     .location-note { grid-area: note; min-height: 18px; color: var(--muted); font-size: 10px; }
     .route-map { grid-area: map; position: relative; height: clamp(200px, 31vh, 290px); min-height: 200px; margin: 0; overflow: hidden; border: 1px solid #d9ded4; background-color: #edf1e9; }
     .route-map-placeholder { position: absolute; inset: 0; z-index: 400; display: grid; place-content: center; gap: 7px; color: #495247; background-color: #edf1e9; background-image: linear-gradient(#dfe6dc 1px, transparent 1px), linear-gradient(90deg, #dfe6dc 1px, transparent 1px); background-size: 36px 36px; text-align: center; font-size: 12px; pointer-events: none; }
@@ -368,7 +395,7 @@
   </div>
   <dialog id="run-dialog">
     <div class="run-modal" data-phase="ready">
-      <div class="modal-top"><span class="eyebrow">PACE / OUTDOOR RUN</span><button class="close-button" id="close-run" aria-label="닫기">×</button></div>
+      <div class="modal-top"><span class="eyebrow">PACE / OUTDOOR RUN</span><div class="modal-top-actions"><button class="run-info-button" id="open-safety-info" type="button" aria-label="데이터와 안전 안내">ⓘ</button><button class="close-button" id="close-run" aria-label="닫기">×</button></div></div>
       <div class="run-ready" id="run-ready" role="img" aria-label="야외 러닝 준비 화면">
         <div class="run-ready-copy"><div class="run-ready-kicker">READY / OUTDOOR RUN</div><div class="run-ready-title">오늘의 리듬으로.</div><div class="run-ready-subtitle">PACE · FIELD SESSION</div></div>
       </div>
@@ -421,6 +448,10 @@
             <input class="cadence-target" id="cadence-target" type="range" min="150" max="200" step="1" value="170" aria-label="목표 케이던스, 분당 걸음 수">
             <div class="cadence-range"><span>150 SPM</span><span>200 SPM</span></div>
           </div>
+          <div class="voice-guide">
+            <div class="voice-guide-copy"><strong>음성 안내</strong><small>목표 거리의 10%마다 페이스 안내</small></div>
+            <button class="voice-toggle" id="voice-guidance-toggle" type="button" aria-pressed="true">켜짐</button>
+          </div>
         </section>
       </div>
       <div class="run-photo-preview" id="run-photo-preview" hidden>
@@ -440,6 +471,27 @@
         <button class="primary" id="start-run">러닝 시작</button>
         <button id="finish-run" disabled>종료 및 저장</button>
       </div>
+    </div>
+    <div class="touch-lock-overlay" id="touch-lock-overlay" hidden>
+      <div class="touch-lock-content">
+        <div class="touch-lock-symbol">⛶</div>
+        <strong>화면 잠김</strong>
+        <p>달리는 동안 실수로 눌리지 않도록 잠겼어요.</p>
+        <button class="unlock-hold" id="unlock-screen" type="button">
+          <span>3초 길게 눌러 해제</span>
+          <i id="unlock-progress"></i>
+        </button>
+      </div>
+    </div>
+  </dialog>
+  <dialog class="safety-dialog" id="safety-dialog" aria-labelledby="safety-title">
+    <div class="safety-content">
+      <div class="safety-heading"><h2 id="safety-title">데이터와 안전 안내</h2><button class="close-button" id="close-safety-info" type="button" aria-label="안내 닫기">×</button></div>
+      <section><h3>어디에 저장되나요?</h3><p>러닝 기록, 사진, 목표 거리와 저장한 좋은 곳의 GPS 좌표는 이 기기의 브라우저 저장소에만 보관됩니다. 계정 서버로 업로드하거나 기기 사이에 동기화하지 않으며, 저장 데이터는 암호화되지 않습니다. 브라우저 데이터를 지우면 함께 삭제될 수 있어요.</p></section>
+      <section><h3>공유하면 무엇이 전달되나요?</h3><p>공유 기능은 거리·시간·페이스 요약과 앱 주소만 보냅니다. 사진, 경로 좌표, 좋은 곳은 자동으로 첨부하지 않습니다. 이 앱과 저장소는 공개 상태라 링크를 아는 누구나 앱과 코드를 볼 수 있지만, 다른 사람 기기에 저장된 러닝 기록을 볼 수는 없습니다.</p></section>
+      <section><h3>비밀번호와 개인정보</h3><p>앱 자체 로그인이나 비밀번호 보호는 없습니다. 휴대폰의 강한 화면 잠금 비밀번호/생체 잠금을 사용하고, 잠금 해제된 기기나 브라우저 프로필을 다른 사람과 공유하지 마세요. 지도는 OpenStreetMap에서 불러오며, 지도 타일 요청으로 대략적인 지도 영역과 접속 IP가 해당 서비스에 전달될 수 있습니다.</p></section>
+      <section><h3>러닝 중 안전</h3><p>휴대폰은 손에 들기보다 허리 벨트 등에 몸에 밀착해 고정하세요. 주변을 계속 살피고, 도로를 건널 때는 화면을 보지 마세요. 음성 안내를 켜고, 필요하면 화면 잠금을 사용하세요. 화면 잠금은 앱 터치만 막으며 휴대폰의 OS 잠금 비밀번호를 대신하지 않습니다.</p></section>
+      <button class="safety-confirm" id="confirm-safety-info" type="button">확인</button>
     </div>
   </dialog>
   <div class="toast" id="toast" role="status"></div>
@@ -474,6 +526,10 @@
     let targetDistanceKm = 5;
     let runPhotoDataUrl = null;
     let wakeLockSentinel = null;
+    let isTouchLocked = false;
+    let touchUnlockTimeoutId = null;
+    let isVoiceGuidanceEnabled = true;
+    let lastAnnouncedDistanceStep = 0;
     let recentDistanceSamples = [];
     let pauseStartedAt = 0;
     let pauseTickId = null;
@@ -592,6 +648,7 @@
       updateRecentPace();
       updateCadenceDisplay();
       updatePostureDisplay();
+      checkVoiceGuidance();
     }
 
     function updateCadenceDisplay(now = performance.now()) {
@@ -701,6 +758,42 @@
       $("#metronome-toggle").setAttribute("aria-label", isMetronomeEnabled ? "케이던스 비프 끄기" : "케이던스 비프 켜기");
     }
 
+    function updateVoiceGuideControls() {
+      $("#voice-guidance-toggle").setAttribute("aria-pressed", String(isVoiceGuidanceEnabled));
+      $("#voice-guidance-toggle").textContent = isVoiceGuidanceEnabled ? "켜짐" : "꺼짐";
+    }
+
+    function announceRunProgress(milestoneDistanceKm, milestoneStep) {
+      if (!isRunning || !isVoiceGuidanceEnabled || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") return;
+      const currentPace = $("#run-pace").textContent;
+      const milestoneMeters = Math.round(milestoneDistanceKm * 1000);
+      const remainingDistance = Math.max(0, targetDistanceKm - milestoneDistanceKm);
+      const milestoneSpeech = milestoneMeters < 1000 ? `${milestoneMeters}미터` : `${(milestoneMeters / 1000).toFixed(1)}킬로미터`;
+      const remainingSpeech = remainingDistance < 1 ? `${Math.round(remainingDistance * 1000)}미터` : `${remainingDistance.toFixed(1)}킬로미터`;
+      const paceSpeech = currentPace === "--:--" ? "최근 페이스는 측정 중입니다." : `최근 페이스 ${currentPace.split(":")[0]}분 ${currentPace.split(":")[1]}초 퍼 킬로미터.`;
+      const utterance = new SpeechSynthesisUtterance(`목표의 ${milestoneStep * 10}퍼센트입니다. ${milestoneSpeech}를 달렸어요. ${paceSpeech} 목표까지 ${remainingSpeech} 남았습니다.`);
+      utterance.lang = "ko-KR";
+      utterance.rate = 1;
+      const restartMetronome = () => {
+        if (isRunning && isMetronomeEnabled) startCadenceMetronome();
+      };
+      utterance.onend = restartMetronome;
+      utterance.onerror = restartMetronome;
+      stopCadenceMetronome();
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function checkVoiceGuidance() {
+      if (!isRunning || !isVoiceGuidanceEnabled) return;
+      const targetStepDistance = targetDistanceKm / 10;
+      const reachedStep = Math.min(10, Math.floor(distanceKm / targetStepDistance));
+      if (reachedStep > lastAnnouncedDistanceStep && reachedStep > 0) {
+        lastAnnouncedDistanceStep = reachedStep;
+        announceRunProgress(targetStepDistance * reachedStep, reachedStep);
+      }
+    }
+
     function stopCadenceMetronome() {
       clearInterval(metronomeTimerId);
       metronomeTimerId = null;
@@ -806,6 +899,7 @@
     }
 
     function startRunNow() {
+      if (!hasStartedRun) lastAnnouncedDistanceStep = Math.floor(distanceKm / (targetDistanceKm / 10));
       isRunning = true;
       hasStartedRun = true;
       $(".run-modal").dataset.phase = "live";
@@ -955,6 +1049,7 @@
     function pauseRun() {
       if (!isRunning) return;
       isRunning = false;
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       clearInterval(timerId);
       stopLocationWatch();
       stopCadenceSensor();
@@ -975,6 +1070,7 @@
     }
 
     function finishRun() {
+      if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
         runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, photo: runPhotoDataUrl });
         saveRuns();
@@ -993,6 +1089,7 @@
         countdownAudioContext = null;
         audioContext.close().catch(() => {});
       }
+      if (isTouchLocked) unlockRunScreen();
       if (wakeLockSentinel) {
         wakeLockSentinel.release().catch(() => {});
         wakeLockSentinel = null;
@@ -1079,32 +1176,67 @@
     }
 
     function updateScreenLockButton() {
-      const locked = Boolean(wakeLockSentinel);
-      $("#screen-lock").setAttribute("aria-pressed", String(locked));
-      $("#screen-lock").querySelector("small").textContent = locked ? "화면 켜짐" : "화면 잠금";
+      $("#screen-lock").setAttribute("aria-pressed", String(isTouchLocked));
+      $("#screen-lock").querySelector("small").textContent = isTouchLocked ? "터치 잠김" : "화면 잠그기";
     }
 
     async function toggleScreenLock() {
-      if (wakeLockSentinel) {
-        await wakeLockSentinel.release();
-        wakeLockSentinel = null;
-        updateScreenLockButton();
+      if (isTouchLocked) {
+        unlockRunScreen();
         return;
       }
-      if (!navigator.wakeLock) {
-        showToast("이 브라우저에서는 화면 잠금을 지원하지 않아요.");
-        return;
-      }
-      try {
-        wakeLockSentinel = await navigator.wakeLock.request("screen");
-        wakeLockSentinel.addEventListener("release", () => {
+      isTouchLocked = true;
+      $("#touch-lock-overlay").hidden = false;
+      updateScreenLockButton();
+      if (navigator.wakeLock) {
+        try {
+          wakeLockSentinel = await navigator.wakeLock.request("screen");
+          wakeLockSentinel.addEventListener("release", () => {
+            wakeLockSentinel = null;
+            updateScreenLockButton();
+          }, { once: true });
+        } catch {
           wakeLockSentinel = null;
-          updateScreenLockButton();
-        }, { once: true });
-        updateScreenLockButton();
-      } catch {
-        showToast("화면 잠금을 허용하지 못했어요.");
+        }
       }
+    }
+
+    function unlockRunScreen() {
+      clearTimeout(touchUnlockTimeoutId);
+      touchUnlockTimeoutId = null;
+      isTouchLocked = false;
+      $("#touch-lock-overlay").hidden = true;
+      $("#unlock-progress").style.transition = "none";
+      $("#unlock-progress").style.width = "0";
+      if (wakeLockSentinel) {
+        const sentinel = wakeLockSentinel;
+        wakeLockSentinel = null;
+        sentinel.release().catch(() => {});
+      }
+      updateScreenLockButton();
+    }
+
+    function beginUnlockHold(event) {
+      if (!isTouchLocked) return;
+      event.preventDefault();
+      const button = $("#unlock-screen");
+      if (event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
+      const progress = $("#unlock-progress");
+      progress.style.transition = "none";
+      progress.style.width = "0";
+      void progress.offsetWidth;
+      progress.style.transition = "width 3s linear";
+      progress.style.width = "100%";
+      clearTimeout(touchUnlockTimeoutId);
+      touchUnlockTimeoutId = setTimeout(unlockRunScreen, 3000);
+    }
+
+    function cancelUnlockHold() {
+      if (touchUnlockTimeoutId) clearTimeout(touchUnlockTimeoutId);
+      touchUnlockTimeoutId = null;
+      const progress = $("#unlock-progress");
+      progress.style.transition = "none";
+      progress.style.width = "0";
     }
 
     function saveFavoritePlace() {
@@ -1161,7 +1293,15 @@
     $("#start-run").addEventListener("click", beginRun);
     $("#pause-run").addEventListener("click", pauseRun);
     $("#finish-run").addEventListener("click", finishRun);
+    $("#open-safety-info").addEventListener("click", () => $("#safety-dialog").showModal());
+    $("#close-safety-info").addEventListener("click", () => $("#safety-dialog").close());
+    $("#confirm-safety-info").addEventListener("click", () => $("#safety-dialog").close());
+    $("#safety-dialog").addEventListener("click", event => {
+      if (event.target === $("#safety-dialog")) $("#safety-dialog").close();
+    });
     $("#screen-lock").addEventListener("click", toggleScreenLock);
+    $("#unlock-screen").addEventListener("pointerdown", beginUnlockHold);
+    ["pointerup", "pointercancel", "pointerleave", "lostpointercapture"].forEach(type => $("#unlock-screen").addEventListener(type, cancelUnlockHold));
     $("#favorite-place").addEventListener("click", saveFavoritePlace);
     $("#capture-photo").addEventListener("click", () => $("#run-photo-input").click());
     $("#run-photo-input").addEventListener("change", event => captureRunPhoto(event.target.files?.[0]));
@@ -1173,8 +1313,16 @@
     $("#share-run").addEventListener("click", shareRun);
     $$(".run-tab").forEach(button => button.addEventListener("click", () => selectRunTab(button.dataset.runTab)));
     $("#cadence-target").addEventListener("input", updateCadenceGuideDisplay);
+    $("#voice-guidance-toggle").addEventListener("click", () => {
+      isVoiceGuidanceEnabled = !isVoiceGuidanceEnabled;
+      updateVoiceGuideControls();
+      try { localStorage.setItem("pace-voice-guidance-v1", String(isVoiceGuidanceEnabled)); }
+      catch {}
+      if (!isVoiceGuidanceEnabled && "speechSynthesis" in window) window.speechSynthesis.cancel();
+    });
     $("#target-distance").addEventListener("input", () => {
       updateRunGoalDisplay();
+      if (isRunning) lastAnnouncedDistanceStep = Math.floor(distanceKm / (targetDistanceKm / 10));
       try { localStorage.setItem("pace-target-distance-v1", String(targetDistanceKm)); }
       catch {}
     });
@@ -1197,6 +1345,9 @@
         $("#run-dialog").close();
       }
     });
+    $("#run-dialog").addEventListener("cancel", event => {
+      if (isTouchLocked) event.preventDefault();
+    });
 
     const now = new Date();
     $("#header-date").textContent = now.toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
@@ -1205,7 +1356,10 @@
     updateCadenceGuideDisplay();
     const savedTargetDistance = Number(localStorage.getItem("pace-target-distance-v1"));
     if (savedTargetDistance >= 1 && savedTargetDistance <= 42) $("#target-distance").value = String(savedTargetDistance);
+    try { isVoiceGuidanceEnabled = localStorage.getItem("pace-voice-guidance-v1") !== "false"; }
+    catch {}
     updateRunGoalDisplay();
+    updateVoiceGuideControls();
   </script>
 </body>
 </html>
