@@ -78,6 +78,7 @@
     .text-button { padding: 4px 0; border: 0; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; }
     .activity-row { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 15px 0; border-top: 1px solid var(--line); }
     .activity-symbol { display: grid; place-items: center; width: 40px; height: 40px; background: var(--lime); font-size: 17px; }
+    .activity-symbol img { width: 100%; height: 100%; object-fit: cover; }
     .activity-name { font-size: 12px; font-weight: 700; }
     .activity-meta { margin-top: 4px; color: var(--muted); font: 10px var(--mono); }
     .activity-distance { font: 14px var(--mono); }
@@ -101,9 +102,9 @@
     .plan-tag { display: inline-block; margin-top: 15px; padding: 5px 7px; background: #edf1d9; color: #535b37; font: 9px var(--mono); }
     dialog { width: min(820px, calc(100% - 32px)); max-width: 820px; max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid #d8ddd3; color: var(--ink); background: var(--white); box-shadow: 0 24px 90px #10151055; }
     dialog::backdrop { background: #182019a8; backdrop-filter: blur(5px); }
-    .run-modal { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "top top" "status status" "clock metrics" "metrics metrics" "guide guide" "map map" "note note" "actions actions"; align-items: center; gap: 14px 24px; padding: 24px 28px 22px; }
-    .run-modal[data-phase="ready"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "ready" "guide" "actions"; }
-    .run-modal[data-phase="countdown"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "actions"; align-content: center; min-height: 460px; }
+    .run-modal { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "distance" "elapsed" "metrics" "target" "pause" "tabs" "panels" "photo" "tools" "note" "actions"; align-items: center; gap: 12px; padding: 24px 28px 22px; }
+    .run-modal[data-phase="ready"] { grid-template-areas: "top" "ready" "target" "tabs" "panels" "actions"; }
+    .run-modal[data-phase="countdown"] { grid-template-areas: "top" "status" "elapsed" "actions"; align-content: center; min-height: 460px; }
     .modal-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
     .modal-top .eyebrow { color: var(--muted); }
     .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 22px; cursor: pointer; }
@@ -111,7 +112,16 @@
     .run-status { grid-area: status; display: flex; align-items: center; gap: 8px; align-self: end; margin: 0; color: var(--muted); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
     .run-status::before { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #a4aa9e; content: ""; }
     .run-status[data-state="live"]::before { background: var(--orange); box-shadow: 0 0 0 4px #f2654525; }
-    .run-clock { grid-area: clock; align-self: center; min-height: 1em; color: var(--ink); font: 600 clamp(60px, 7vw, 84px) var(--sans); letter-spacing: -.04em; font-variant-numeric: tabular-nums; transition: color .2s; }
+    .run-distance-panel { grid-area: distance; padding: 4px 0 0; }
+    .run-distance-label { color: var(--muted); font-size: 11px; }
+    .run-distance-value { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; color: #174f3c; font: 800 clamp(62px, 9vw, 92px) var(--sans); font-variant-numeric: tabular-nums; line-height: 1; }
+    .run-distance-value span:last-child { color: var(--orange); font-size: 20px; font-weight: 700; }
+    .run-distance-meta { display: flex; justify-content: space-between; align-items: baseline; margin-top: 8px; color: var(--muted); font-size: 11px; }
+    .run-distance-meta strong { color: var(--orange); font-weight: 700; }
+    .run-distance-track { height: 6px; margin-top: 8px; overflow: hidden; background: #e5e8df; }
+    .run-distance-track span { display: block; width: 0; height: 100%; background: linear-gradient(90deg, #f6a15e, var(--orange)); transition: width .25s; }
+    .run-elapsed { grid-area: elapsed; display: flex; align-items: baseline; justify-content: space-between; padding: 10px 12px; background: #f2f4ed; }
+    .run-clock { min-height: 1em; color: var(--ink); font: 700 24px var(--sans); letter-spacing: 0; font-variant-numeric: tabular-nums; transition: color .2s; }
     .run-clock.countdown-number { color: var(--orange); font-size: clamp(110px, 14vw, 140px); font-weight: 800; line-height: .9; letter-spacing: -.04em; animation: count-in .32s cubic-bezier(.2,.8,.2,1) both; }
     .run-ready { grid-area: ready; position: relative; display: grid; min-height: 265px; align-content: end; overflow: hidden; padding: 27px 30px; background: #29372f url("https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1400&q=85") center 47% / cover no-repeat; color: white; }
     .run-ready::before { position: absolute; inset: 0; background: linear-gradient(90deg, #111a19d9, #111a1955 60%, #111a1908); content: ""; }
@@ -120,17 +130,37 @@
     .run-ready-title { margin-top: 12px; font-size: clamp(30px, 5vw, 43px); font-weight: 800; line-height: 1.15; }
     .run-ready-subtitle { margin-top: 8px; color: #e4e9e2; font-size: 12px; }
     .run-modal[data-phase="ready"] .run-status,
-    .run-modal[data-phase="ready"] .run-clock,
+    .run-modal[data-phase="ready"] .run-distance-panel,
+    .run-modal[data-phase="ready"] .run-elapsed,
     .run-modal[data-phase="ready"] .run-metrics,
     .run-modal[data-phase="ready"] .route-map,
     .run-modal[data-phase="ready"] .location-note,
     .run-modal[data-phase="live"] .run-ready,
     .run-modal[data-phase="paused"] .run-ready,
     .run-modal[data-phase="countdown"] .run-ready,
+    .run-modal[data-phase="countdown"] .run-distance-panel,
     .run-modal[data-phase="countdown"] .run-metrics,
+    .run-modal[data-phase="countdown"] .run-target-control,
+    .run-modal[data-phase="countdown"] .pause-note,
     .run-modal[data-phase="countdown"] .cadence-guide,
     .run-modal[data-phase="countdown"] .route-map,
-    .run-modal[data-phase="countdown"] .location-note { display: none; }
+    .run-modal[data-phase="countdown"] .location-note,
+    .run-modal[data-phase="ready"] .run-photo-preview,
+    .run-modal[data-phase="ready"] .run-tools,
+    .run-modal[data-phase="countdown"] .run-photo-preview,
+    .run-modal[data-phase="countdown"] .run-tools { display: none; }
+    .run-modal[data-phase="countdown"] .run-elapsed { justify-content: center; padding: 0; background: transparent; }
+    .run-modal[data-phase="countdown"] .run-clock { font-size: 24px; }
+    .run-modal[data-phase="countdown"] .run-clock.countdown-number { font-size: clamp(120px, 36vw, 150px); }
+    .run-modal[data-phase="ready"] .pause-note,
+    .run-modal[data-phase="live"] .pause-note { display: none; }
+    .run-modal[data-phase="paused"] .pause-note { grid-area: pause; display: block; }
+    .run-target-control { grid-area: target; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 9px 12px; border: 1px solid var(--line); background: #fafbf7; }
+    .run-target-control label { color: var(--ink); font-size: 10px; font-weight: 700; }
+    .run-target-control output { color: var(--ink); font-size: 11px; font-weight: 700; }
+      .run-target-control input { grid-column: 1 / -1; width: 100%; height: 14px; margin: 0; accent-color: var(--orange); }
+    .target-distance-range { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); }
+    .pause-note { padding: 10px 12px; border: 1px solid #edcf9c; background: #fff5df; color: #70552f; font-size: 11px; }
     @keyframes count-in { from { opacity: .35; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
     .run-metrics { grid-area: metrics; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 12px 10px; border: 0; background: #f2f4ed; }
     .run-metric { min-height: 58px; padding: 7px 8px; }
@@ -145,6 +175,31 @@
     .cadence-range { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); }
     .cadence-toggle { min-height: 30px; padding: 0 10px; border: 1px solid #cfd5ca; background: white; color: var(--muted); font: 10px var(--sans); cursor: pointer; }
     .cadence-toggle[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
+    .run-tabs { grid-area: tabs; display: flex; gap: 3px; padding: 3px; background: #eef1e9; }
+    .run-tab { flex: 1; min-height: 38px; border: 0; background: transparent; color: var(--muted); font: 600 11px var(--sans); cursor: pointer; }
+    .run-tab.active { background: white; color: var(--ink); box-shadow: 0 1px 4px #20231f1a; }
+    .run-modal[data-phase="ready"] .run-tab:not([data-run-tab="guide"]) { display: none; }
+    .run-modal[data-phase="countdown"] .run-tabs,
+    .run-modal[data-phase="countdown"] .run-panels { display: none; }
+    .run-panels { grid-area: panels; min-width: 0; }
+    .run-pane { min-width: 0; }
+    .run-pane[hidden] { display: none; }
+    .posture-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .posture-stat { display: grid; min-height: 70px; align-content: center; gap: 5px; padding: 10px 12px; background: #f2f4ed; }
+    .posture-stat span { color: var(--muted); font-size: 10px; }
+    .posture-stat strong { color: var(--ink); font: 700 19px var(--sans); font-variant-numeric: tabular-nums; }
+    .posture-stat small { color: var(--muted); font-size: 9px; }
+    .posture-note { margin: 8px 0 0; color: var(--muted); font-size: 9px; }
+    .run-photo-preview { grid-area: photo; position: relative; height: 120px; overflow: hidden; background: #edf1e9; }
+    .run-photo-preview[hidden] { display: none; }
+    .run-photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+    .run-photo-preview button { position: absolute; top: 7px; right: 7px; width: 32px; height: 32px; border: 0; background: #ffffffdf; color: var(--ink); font-size: 20px; cursor: pointer; }
+    .run-tools { grid-area: tools; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    .run-tool { display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 54px; border: 1px solid var(--line); background: var(--white); color: var(--ink); cursor: pointer; }
+    .run-tool span { font-size: 18px; line-height: 1; }
+    .run-tool small { color: var(--muted); font-size: 9px; }
+    .run-tool:disabled { opacity: .45; cursor: default; }
+    .run-tool[aria-pressed="true"] { border-color: #91ae9d; background: #e8f0e9; }
     .location-note { grid-area: note; min-height: 18px; color: var(--muted); font-size: 10px; }
     .route-map { grid-area: map; position: relative; height: clamp(200px, 31vh, 290px); min-height: 200px; margin: 0; overflow: hidden; border: 1px solid #d9ded4; background-color: #edf1e9; }
     .route-map-placeholder { position: absolute; inset: 0; z-index: 400; display: grid; place-content: center; gap: 7px; color: #495247; background-color: #edf1e9; background-image: linear-gradient(#dfe6dc 1px, transparent 1px), linear-gradient(90deg, #dfe6dc 1px, transparent 1px); background-size: 36px 36px; text-align: center; font-size: 12px; pointer-events: none; }
@@ -197,22 +252,37 @@
       .stat-unit { display: block; margin: 4px 0 0; font-size: 9px; }
       .lower { grid-template-columns: 1fr; gap: 24px; }
       dialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; overflow: auto; border: 0; }
-      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "guide" "map" "note" "actions"; align-content: stretch; gap: 7px; padding: max(12px, env(safe-area-inset-top)) 18px max(10px, env(safe-area-inset-bottom)); }
-      .run-modal[data-phase="ready"] { grid-template-areas: "top" "ready" "guide" "actions"; align-content: start; gap: 12px; }
-      .run-modal[data-phase="countdown"] { grid-template-areas: "top" "status" "clock" "actions"; min-height: 100%; gap: 15px; }
+      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "distance" "elapsed" "metrics" "target" "pause" "tabs" "panels" "photo" "tools" "note" "actions"; align-content: stretch; gap: 3px; padding: max(8px, env(safe-area-inset-top)) 16px max(8px, env(safe-area-inset-bottom)); }
+      .run-modal[data-phase="ready"] { grid-template-areas: "top" "ready" "target" "tabs" "panels" "actions"; align-content: start; gap: 11px; }
+      .run-modal[data-phase="countdown"] { grid-template-areas: "top" "status" "elapsed" "actions"; min-height: 100%; gap: 15px; }
       .modal-top { padding-bottom: 10px; }
       .run-ready { min-height: 250px; padding: 22px; background-position: 56% center; }
       .run-ready-title { font-size: 32px; }
       .run-status { align-self: auto; margin-top: 2px; }
-      .run-clock { font-size: clamp(58px, 16vw, 74px); }
+      .run-distance-panel { padding-top: 0; }
+      .run-distance-value { font-size: clamp(60px, 18vw, 74px); }
+      .run-elapsed { padding: 5px 10px; }
+      .run-clock { font-size: 21px; }
       .run-clock.countdown-number { font-size: clamp(112px, 36vw, 136px); }
-      .run-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px; }
-      .run-metric { min-height: 46px; padding: 6px 8px; }
+      .run-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; }
+      .run-metric { min-height: 40px; padding: 4px 7px; }
       .run-metric:nth-child(even) { border-left: 1px solid #d9ded4; }
       .run-metric:nth-child(n+3) { border-top: 1px solid #d9ded4; }
-      .route-map { min-height: 125px; height: 15dvh; max-height: 150px; }
-      .modal-actions { gap: 7px; margin-top: auto; padding-top: 8px; }
-      .modal-actions button { min-height: 46px; padding: 0 5px; font-size: 11px; }
+      .run-target-control { padding: 4px 8px; }
+      .pause-note { padding: 5px 8px; }
+      .cadence-guide { gap: 3px 8px; padding: 6px 8px; }
+      .cadence-guide label { font-size: 10px; }
+      .cadence-guide output { font-size: 12px; }
+      .cadence-target { height: 12px; }
+      .cadence-toggle { min-height: 26px; padding: 0 8px; font-size: 9px; }
+      .route-map { min-height: 88px; height: 11dvh; max-height: 102px; }
+      .run-photo-preview { height: 64px; }
+      .run-tools { gap: 4px; }
+      .run-tool { min-height: 38px; gap: 2px; }
+      .run-tool span { font-size: 15px; }
+      .run-tool small { font-size: 8px; }
+      .modal-actions { gap: 7px; margin-top: auto; padding-top: 4px; }
+      .modal-actions button { min-height: 42px; padding: 0 5px; font-size: 11px; }
       .plan-grid { grid-template-columns: 1fr; }
       .records-list { padding: 0 16px; }
       footer { margin-top: 35px; }
@@ -303,23 +373,67 @@
         <div class="run-ready-copy"><div class="run-ready-kicker">READY / OUTDOOR RUN</div><div class="run-ready-title">오늘의 리듬으로.</div><div class="run-ready-subtitle">PACE · FIELD SESSION</div></div>
       </div>
       <div class="run-status" id="run-status" data-state="ready">READY WHEN YOU ARE</div>
-      <div class="run-clock" id="run-clock" aria-live="polite">00:00:00</div>
+      <section class="run-distance-panel" aria-label="목표 거리 진행">
+        <div class="run-distance-label">달린 거리</div>
+        <div class="run-distance-value"><span id="run-distance">0.00</span><span>km</span></div>
+        <div class="run-distance-meta"><span id="run-target-label">목표 5 km</span><strong id="run-remaining">5.0 km 남음</strong></div>
+        <div class="run-distance-track"><span id="run-target-fill"></span></div>
+      </section>
+      <div class="run-elapsed"><div class="run-metric-label">달린 시간</div><div class="run-clock" id="run-clock" aria-live="polite">00:00</div></div>
       <div class="run-metrics">
-        <div class="run-metric"><div class="run-metric-label">거리</div><div class="run-metric-value"><span id="run-distance">0.00</span> km</div></div>
-        <div class="run-metric"><div class="run-metric-label">평균 페이스</div><div class="run-metric-value"><span id="run-pace">--:--</span></div></div>
+        <div class="run-metric"><div class="run-metric-label">예상 완주</div><div class="run-metric-value"><span id="run-eta">--:--</span></div><span class="run-metric-unit">현재 페이스 기준</span></div>
+        <div class="run-metric"><div class="run-metric-label">현재 페이스</div><div class="run-metric-value"><span id="run-pace">--:--</span></div><span class="run-metric-unit">최근 30초</span></div>
         <div class="run-metric"><div class="run-metric-label">칼로리</div><div class="run-metric-value"><span id="run-calories">0</span> kcal</div></div>
-        <div class="run-metric" title="휴대폰 모션 센서로 측정한 현재 케이던스"><div class="run-metric-label">현재 케이던스</div><div class="run-metric-value"><span id="run-cadence">--</span> <span class="run-metric-unit">SPM</span></div><span class="run-metric-unit" id="run-cadence-target">목표 170</span></div>
+        <div class="run-metric" title="휴대폰 모션 센서로 측정한 현재 케이던스"><div class="run-metric-label">케이던스</div><div class="run-metric-value"><span id="run-cadence">--</span> <span class="run-metric-unit">SPM</span></div><span class="run-metric-unit" id="run-cadence-target">목표 170 · 최근 20초</span></div>
       </div>
-      <div class="cadence-guide">
-        <label for="cadence-target">케이던스 비프</label>
-        <output id="cadence-target-value" for="cadence-target">170 SPM</output>
-        <button class="cadence-toggle" id="metronome-toggle" type="button" aria-pressed="true">비프 켜짐</button>
-        <input class="cadence-target" id="cadence-target" type="range" min="150" max="200" step="1" value="170" aria-label="목표 케이던스, 분당 걸음 수">
-        <div class="cadence-range"><span>150 SPM</span><span>200 SPM</span></div>
+      <div class="run-target-control">
+        <label for="target-distance">목표 거리</label>
+        <output id="target-distance-value" for="target-distance">5.0 km</output>
+        <input id="target-distance" type="range" min="1" max="42" step="0.5" value="5" aria-label="목표 거리, 킬로미터">
+        <div class="target-distance-range"><span>1 km</span><span>42 km</span></div>
       </div>
-      <div class="route-map" id="route-map" aria-label="실시간 러닝 경로 지도">
-        <div class="route-map-placeholder" id="route-map-placeholder">GPS 연결을 기다리고 있어요<span>러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다</span></div>
+      <div class="pause-note" id="pause-note" hidden>멈춘 동안은 러닝 시간과 페이스에 포함하지 않아요.</div>
+      <div class="run-tabs" role="tablist" aria-label="러닝 정보">
+        <button class="run-tab" type="button" role="tab" aria-selected="false" data-run-tab="map">지도</button>
+        <button class="run-tab" type="button" role="tab" aria-selected="false" data-run-tab="posture">자세</button>
+        <button class="run-tab active" type="button" role="tab" aria-selected="true" data-run-tab="guide">가이드</button>
       </div>
+      <div class="run-panels">
+        <section class="run-pane" id="run-pane-map" role="tabpanel" data-pane="map" hidden>
+          <div class="route-map" id="route-map" aria-label="실시간 러닝 경로 지도">
+            <div class="route-map-placeholder" id="route-map-placeholder">GPS 연결을 기다리고 있어요<span>러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다</span></div>
+          </div>
+        </section>
+        <section class="run-pane" id="run-pane-posture" role="tabpanel" data-pane="posture" hidden>
+          <div class="posture-grid">
+            <div class="posture-stat"><span>걸음 수</span><strong id="posture-steps">0</strong><small>전체 러닝</small></div>
+            <div class="posture-stat"><span>평균 걸음폭</span><strong id="posture-stride">--</strong><small>GPS 거리 기준</small></div>
+            <div class="posture-stat"><span>착지 충격</span><strong id="posture-impact">--</strong><small>최근 20초 · m/s²</small></div>
+            <div class="posture-stat"><span>좌우 밸런스</span><strong>--</strong><small>양발 센서 필요</small></div>
+          </div>
+          <p class="posture-note">자세 지표는 휴대폰 착용 위치와 방향에 따라 달라질 수 있어요.</p>
+        </section>
+        <section class="run-pane" id="run-pane-guide" role="tabpanel" data-pane="guide">
+          <div class="cadence-guide">
+            <label for="cadence-target">케이던스 비프</label>
+            <output id="cadence-target-value" for="cadence-target">170 SPM</output>
+            <button class="cadence-toggle" id="metronome-toggle" type="button" aria-pressed="true">비프 켜짐</button>
+            <input class="cadence-target" id="cadence-target" type="range" min="150" max="200" step="1" value="170" aria-label="목표 케이던스, 분당 걸음 수">
+            <div class="cadence-range"><span>150 SPM</span><span>200 SPM</span></div>
+          </div>
+        </section>
+      </div>
+      <div class="run-photo-preview" id="run-photo-preview" hidden>
+        <img id="run-photo-image" alt="이번 러닝 사진">
+        <button id="remove-run-photo" type="button" aria-label="사진 제거">×</button>
+      </div>
+      <div class="run-tools">
+        <button class="run-tool" id="screen-lock" type="button" aria-pressed="false"><span>⛶</span><small>화면 잠금</small></button>
+        <button class="run-tool" id="favorite-place" type="button" disabled><span>☆</span><small>좋은 곳</small></button>
+        <button class="run-tool" id="capture-photo" type="button"><span>▧</span><small>사진 촬영</small></button>
+        <button class="run-tool" id="share-run" type="button"><span>↗</span><small>공유</small></button>
+      </div>
+      <input id="run-photo-input" type="file" accept="image/*" capture="environment" hidden>
       <div class="location-note" id="location-note">시작을 누르면 위치 권한을 요청합니다.</div>
       <div class="modal-actions">
         <button id="pause-run" disabled>일시 정지</button>
@@ -350,11 +464,19 @@
     let motionListener = null;
     let motionSamples = [];
     let stepTimestamps = [];
+    let recentStepPeaks = [];
     let lastStepTimestamp = 0;
+    let totalStepCount = 0;
     let motionAvailable = false;
     let cadenceTarget = 170;
     let isMetronomeEnabled = true;
     let metronomeTimerId = null;
+    let targetDistanceKm = 5;
+    let runPhotoDataUrl = null;
+    let wakeLockSentinel = null;
+    let recentDistanceSamples = [];
+    let pauseStartedAt = 0;
+    let pauseTickId = null;
     let isCountdownActive = false;
     let countdownTimeoutId = null;
     let countdownAudioContext = null;
@@ -382,6 +504,52 @@
       return `${Math.floor(paceSeconds / 60)}:${String(paceSeconds % 60).padStart(2, "0")}`;
     }
 
+    function updateRunGoalDisplay() {
+      targetDistanceKm = Number($("#target-distance").value);
+      const remainingDistance = Math.max(0, targetDistanceKm - distanceKm);
+      $("#target-distance-value").textContent = `${targetDistanceKm.toFixed(1)} km`;
+      $("#run-target-label").textContent = `목표 ${targetDistanceKm.toFixed(1)} km`;
+      $("#run-remaining").textContent = remainingDistance > 0 ? `${remainingDistance.toFixed(1)} km 남음` : "목표 달성";
+      $("#run-target-fill").style.width = `${Math.min(100, distanceKm / targetDistanceKm * 100)}%`;
+      if (distanceKm >= 0.05 && elapsedSeconds > 0) {
+        const estimatedDuration = Math.round(elapsedSeconds / distanceKm * targetDistanceKm);
+        $("#run-eta").textContent = formatDuration(estimatedDuration);
+      } else {
+        $("#run-eta").textContent = "--:--";
+      }
+    }
+
+    function updateRecentPace(now = Date.now()) {
+      recentDistanceSamples = recentDistanceSamples.filter(sample => now - sample.time <= 30000);
+      if (recentDistanceSamples.length < 2) {
+        $("#run-pace").textContent = "--:--";
+        return;
+      }
+      const first = recentDistanceSamples[0];
+      const last = recentDistanceSamples[recentDistanceSamples.length - 1];
+      const distanceDelta = last.distance - first.distance;
+      const durationSeconds = (last.time - first.time) / 1000;
+      $("#run-pace").textContent = distanceDelta >= 0.005 && durationSeconds >= 3
+        ? formatPace(durationSeconds, distanceDelta)
+        : "--:--";
+    }
+
+    function updatePauseNote() {
+      if (!pauseStartedAt) return;
+      const pausedSeconds = Math.floor((Date.now() - pauseStartedAt) / 1000);
+      $("#pause-note").textContent = `일시정지 ${formatDuration(pausedSeconds)} · 이 시간은 러닝 기록에서 제외됩니다.`;
+    }
+
+    function selectRunTab(tabName) {
+      $$(".run-tab").forEach(button => {
+        const selected = button.dataset.runTab === tabName;
+        button.classList.toggle("active", selected);
+        button.setAttribute("aria-selected", String(selected));
+      });
+      $$(".run-pane").forEach(pane => { pane.hidden = pane.dataset.pane !== tabName; });
+      if (tabName === "map" && routeMap) setTimeout(() => routeMap.invalidateSize(), 0);
+    }
+
     function currentWeekRuns() {
       const now = new Date();
       const monday = new Date(now);
@@ -393,7 +561,8 @@
     function makeActivityRow(run) {
       const date = new Date(run.date);
       const day = `${dayNames[date.getDay()]}, ${date.toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}`;
-      return `<div class="activity-row"><div class="activity-symbol">↗</div><div><div class="activity-name">야외 러닝</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>`;
+      const symbol = run.photo ? `<img src="${run.photo}" alt="러닝 사진">` : "↗";
+      return `<div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">야외 러닝</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>`;
     }
 
     function renderDashboard() {
@@ -418,22 +587,36 @@
     function updateRunDisplay() {
       $("#run-clock").textContent = formatDuration(elapsedSeconds);
       $("#run-distance").textContent = distanceKm.toFixed(2);
-      $("#run-pace").textContent = formatPace(elapsedSeconds, distanceKm);
       $("#run-calories").textContent = Math.round(distanceKm * 62);
+      updateRunGoalDisplay();
+      updateRecentPace();
       updateCadenceDisplay();
+      updatePostureDisplay();
     }
 
     function updateCadenceDisplay(now = performance.now()) {
-      stepTimestamps = stepTimestamps.filter(timestamp => now - timestamp <= 6000);
+      stepTimestamps = stepTimestamps.filter(timestamp => now - timestamp <= 20000);
       let cadence = 0;
       if (motionAvailable && isRunning && stepTimestamps.length >= 3) {
         const firstStep = stepTimestamps[0];
         const lastStep = stepTimestamps[stepTimestamps.length - 1];
-        if (now - lastStep <= 2500 && lastStep > firstStep) {
+        if (now - lastStep <= 3000 && lastStep > firstStep) {
           cadence = Math.round((stepTimestamps.length - 1) * 60000 / (lastStep - firstStep));
         }
       }
       $("#run-cadence").textContent = motionAvailable ? String(cadence) : "--";
+    }
+
+    function updatePostureDisplay(now = performance.now()) {
+      recentStepPeaks = recentStepPeaks.filter(sample => now - sample.timestamp <= 20000);
+      $("#posture-steps").textContent = motionAvailable ? totalStepCount.toLocaleString("ko-KR") : "--";
+      const strideMeters = totalStepCount > 0 ? distanceKm * 1000 / totalStepCount : 0;
+      const strideIsPlausible = strideMeters >= 0.25 && strideMeters <= 2.5;
+      $("#posture-stride").textContent = motionAvailable && strideIsPlausible ? `${strideMeters.toFixed(2)} m` : "--";
+      const averageImpact = recentStepPeaks.length
+        ? recentStepPeaks.reduce((sum, sample) => sum + sample.value, 0) / recentStepPeaks.length
+        : 0;
+      $("#posture-impact").textContent = motionAvailable && averageImpact > 0 ? averageImpact.toFixed(1) : "--";
     }
 
     function handleDeviceMotion(event) {
@@ -459,10 +642,13 @@
         const threshold = Math.max(0.65, mean + Math.sqrt(variance) * 0.5);
         if (peak.value >= before.value && peak.value > current.value && peak.value > threshold && peak.timestamp - lastStepTimestamp >= 260) {
           stepTimestamps.push(peak.timestamp);
+          recentStepPeaks.push({ timestamp: peak.timestamp, value: peak.value });
+          totalStepCount += 1;
           lastStepTimestamp = peak.timestamp;
         }
       }
       updateCadenceDisplay(timestamp);
+      updatePostureDisplay(timestamp);
     }
 
     function startCadenceSensor() {
@@ -593,6 +779,7 @@
           }
         }
         lastPosition = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+        $("#favorite-place").disabled = false;
         if (!routeMap && window.L) {
           routeMap = L.map("route-map", { zoomControl: true }).setView(point, 16);
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -611,6 +798,7 @@
           $("#route-map-placeholder").innerHTML = '지도를 불러올 수 없어요<span>인터넷 연결을 확인해 주세요</span>';
         }
         $("#location-note").textContent = `GPS 연결됨 · 정확도 ${Math.round(position.coords.accuracy)} m`;
+        recentDistanceSamples.push({ time: Date.now(), distance: distanceKm });
         updateRunDisplay();
       }, () => {
         $("#location-note").textContent = "위치 권한을 확인할 수 없어요. 시간은 계속 기록됩니다.";
@@ -621,6 +809,7 @@
       isRunning = true;
       hasStartedRun = true;
       $(".run-modal").dataset.phase = "live";
+      selectRunTab("map");
       $("#run-clock").classList.remove("countdown-number");
       updateRunDisplay();
       $("#run-status").textContent = "RUN IN PROGRESS";
@@ -628,6 +817,11 @@
       $("#start-run").textContent = "러닝 재개";
       $("#pause-run").disabled = false;
       $("#finish-run").disabled = false;
+      clearInterval(pauseTickId);
+      pauseTickId = null;
+      pauseStartedAt = 0;
+      $("#pause-note").hidden = true;
+      recentDistanceSamples = [{ time: Date.now(), distance: distanceKm }];
       timerId = setInterval(() => { elapsedSeconds += 1; updateRunDisplay(); }, 1000);
       startCadenceSensor();
       startLocationWatch();
@@ -766,6 +960,12 @@
       stopCadenceSensor();
       stopCadenceMetronome();
       countdownAudioContext?.suspend().catch(() => {});
+      recentDistanceSamples = [];
+      updateRecentPace();
+      pauseStartedAt = Date.now();
+      $("#pause-note").hidden = false;
+      updatePauseNote();
+      pauseTickId = setInterval(updatePauseNote, 1000);
       $(".run-modal").dataset.phase = "paused";
       $("#run-status").textContent = "PAUSED · CATCH YOUR BREATH";
       $("#run-status").dataset.state = "paused";
@@ -775,8 +975,8 @@
     }
 
     function finishRun() {
-      if (elapsedSeconds > 0 || distanceKm > 0) {
-        runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm });
+      if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
+        runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, photo: runPhotoDataUrl });
         saveRuns();
         showToast("러닝 기록을 저장했어요.");
       }
@@ -784,18 +984,36 @@
       stopLocationWatch();
       stopCadenceSensor();
       stopCadenceMetronome();
+      clearInterval(pauseTickId);
+      pauseTickId = null;
+      pauseStartedAt = 0;
+      recentDistanceSamples = [];
       if (countdownAudioContext && countdownAudioContext.state !== "closed") {
         const audioContext = countdownAudioContext;
         countdownAudioContext = null;
         audioContext.close().catch(() => {});
+      }
+      if (wakeLockSentinel) {
+        wakeLockSentinel.release().catch(() => {});
+        wakeLockSentinel = null;
+        updateScreenLockButton();
       }
       isRunning = false;
       hasStartedRun = false;
       elapsedSeconds = 0;
       distanceKm = 0;
       motionAvailable = false;
+      totalStepCount = 0;
+      recentStepPeaks = [];
+      runPhotoDataUrl = null;
+      $("#run-photo-image").removeAttribute("src");
+      $("#run-photo-preview").hidden = true;
+      $("#run-photo-input").value = "";
+      $("#favorite-place").disabled = true;
       $("#run-cadence").textContent = "--";
+      $("#pause-note").hidden = true;
       $(".run-modal").dataset.phase = "ready";
+      selectRunTab("guide");
       routePoints = [];
       routeMap?.remove();
       routeMap = null;
@@ -821,6 +1039,109 @@
       setTimeout(() => toast.classList.remove("show"), 2400);
     }
 
+    function compressRunPhoto(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = () => reject(reader.error);
+        reader.onload = () => {
+          const image = new Image();
+          image.onerror = () => reject(new Error("사진을 열 수 없습니다."));
+          image.onload = () => {
+            const scale = Math.min(1, 1100 / Math.max(image.naturalWidth, image.naturalHeight));
+            const canvas = document.createElement("canvas");
+            canvas.width = Math.round(image.naturalWidth * scale);
+            canvas.height = Math.round(image.naturalHeight * scale);
+            const context = canvas.getContext("2d");
+            if (!context) {
+              resolve(reader.result);
+              return;
+            }
+            context.drawImage(image, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/jpeg", 0.68));
+          };
+          image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function captureRunPhoto(file) {
+      if (!file) return;
+      try {
+        runPhotoDataUrl = await compressRunPhoto(file);
+        $("#run-photo-image").src = runPhotoDataUrl;
+        $("#run-photo-preview").hidden = false;
+        showToast("러닝 사진을 추가했어요.");
+      } catch {
+        showToast("사진을 불러오지 못했어요.");
+      }
+      $("#run-photo-input").value = "";
+    }
+
+    function updateScreenLockButton() {
+      const locked = Boolean(wakeLockSentinel);
+      $("#screen-lock").setAttribute("aria-pressed", String(locked));
+      $("#screen-lock").querySelector("small").textContent = locked ? "화면 켜짐" : "화면 잠금";
+    }
+
+    async function toggleScreenLock() {
+      if (wakeLockSentinel) {
+        await wakeLockSentinel.release();
+        wakeLockSentinel = null;
+        updateScreenLockButton();
+        return;
+      }
+      if (!navigator.wakeLock) {
+        showToast("이 브라우저에서는 화면 잠금을 지원하지 않아요.");
+        return;
+      }
+      try {
+        wakeLockSentinel = await navigator.wakeLock.request("screen");
+        wakeLockSentinel.addEventListener("release", () => {
+          wakeLockSentinel = null;
+          updateScreenLockButton();
+        }, { once: true });
+        updateScreenLockButton();
+      } catch {
+        showToast("화면 잠금을 허용하지 못했어요.");
+      }
+    }
+
+    function saveFavoritePlace() {
+      if (!lastPosition) {
+        showToast("GPS 위치를 받은 뒤 저장할 수 있어요.");
+        return;
+      }
+      let favorites = [];
+      try { favorites = JSON.parse(localStorage.getItem("pace-favorite-places-v1") || "[]"); }
+      catch { favorites = []; }
+      favorites.unshift({ ...lastPosition, date: new Date().toISOString() });
+      try {
+        localStorage.setItem("pace-favorite-places-v1", JSON.stringify(favorites.slice(0, 50)));
+        if (routeMap && window.L) {
+          L.circleMarker([lastPosition.latitude, lastPosition.longitude], { radius: 6, color: "#20231f", weight: 2, fillColor: "#f6b34b", fillOpacity: 1 }).addTo(routeMap).bindPopup("저장한 좋은 곳");
+        }
+        showToast("현재 위치를 좋은 곳에 저장했어요.");
+      } catch {
+        showToast("위치를 저장하지 못했어요.");
+      }
+    }
+
+    async function shareRun() {
+      const shareText = `PACE 러닝 · ${distanceKm.toFixed(2)} km · ${formatDuration(elapsedSeconds)} · 페이스 ${formatPace(elapsedSeconds, distanceKm)} /km`;
+      if (navigator.share) {
+        try { await navigator.share({ title: "PACE 러닝 기록", text: shareText, url: location.href }); }
+        catch (error) { if (error.name !== "AbortError") showToast("공유를 열지 못했어요."); }
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(shareText);
+        showToast("러닝 요약을 복사했어요.");
+      } catch {
+        showToast(shareText);
+      }
+    }
+
     $$(".nav button").forEach(button => button.addEventListener("click", () => {
       $$(".nav button").forEach(item => item.classList.toggle("active", item === button));
       $$(".view").forEach(view => view.classList.toggle("active", view.id === `view-${button.dataset.view}`));
@@ -828,6 +1149,7 @@
     $$('[data-goto="records"]').forEach(button => button.addEventListener("click", () => $("[data-view=records]").click()));
     $("#open-run").addEventListener("click", () => {
       $(".run-modal").dataset.phase = hasStartedRun ? "paused" : "ready";
+      selectRunTab(hasStartedRun ? "map" : "guide");
       $("#run-dialog").showModal();
       if (routeMap) setTimeout(() => routeMap.invalidateSize(), 0);
     });
@@ -839,7 +1161,23 @@
     $("#start-run").addEventListener("click", beginRun);
     $("#pause-run").addEventListener("click", pauseRun);
     $("#finish-run").addEventListener("click", finishRun);
+    $("#screen-lock").addEventListener("click", toggleScreenLock);
+    $("#favorite-place").addEventListener("click", saveFavoritePlace);
+    $("#capture-photo").addEventListener("click", () => $("#run-photo-input").click());
+    $("#run-photo-input").addEventListener("change", event => captureRunPhoto(event.target.files?.[0]));
+    $("#remove-run-photo").addEventListener("click", () => {
+      runPhotoDataUrl = null;
+      $("#run-photo-image").removeAttribute("src");
+      $("#run-photo-preview").hidden = true;
+    });
+    $("#share-run").addEventListener("click", shareRun);
+    $$(".run-tab").forEach(button => button.addEventListener("click", () => selectRunTab(button.dataset.runTab)));
     $("#cadence-target").addEventListener("input", updateCadenceGuideDisplay);
+    $("#target-distance").addEventListener("input", () => {
+      updateRunGoalDisplay();
+      try { localStorage.setItem("pace-target-distance-v1", String(targetDistanceKm)); }
+      catch {}
+    });
     $("#cadence-target").addEventListener("change", () => {
       if (isRunning && isMetronomeEnabled) startCadenceMetronome();
     });
@@ -865,6 +1203,9 @@
     $("#today-date").textContent = now.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
     renderDashboard();
     updateCadenceGuideDisplay();
+    const savedTargetDistance = Number(localStorage.getItem("pace-target-distance-v1"));
+    if (savedTargetDistance >= 1 && savedTargetDistance <= 42) $("#target-distance").value = String(savedTargetDistance);
+    updateRunGoalDisplay();
   </script>
 </body>
 </html>
