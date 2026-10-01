@@ -99,9 +99,11 @@
     .plan-item h3 { margin: 14px 0 7px; font-size: 15px; }
     .plan-item p { margin: 0; color: var(--muted); font-size: 11px; }
     .plan-tag { display: inline-block; margin-top: 15px; padding: 5px 7px; background: #edf1d9; color: #535b37; font: 9px var(--mono); }
-    dialog { width: min(900px, calc(100% - 32px)); max-width: 900px; max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid #d8ddd3; color: var(--ink); background: var(--white); box-shadow: 0 24px 90px #10151055; }
+    dialog { width: min(820px, calc(100% - 32px)); max-width: 820px; max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid #d8ddd3; color: var(--ink); background: var(--white); box-shadow: 0 24px 90px #10151055; }
     dialog::backdrop { background: #182019a8; backdrop-filter: blur(5px); }
-    .run-modal { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "top top" "status status" "clock metrics" "map map" "note note" "actions actions"; align-items: center; gap: 15px 24px; padding: 26px 30px 24px; }
+    .run-modal { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "top top" "status status" "clock metrics" "metrics metrics" "map map" "note note" "actions actions"; align-items: center; gap: 14px 24px; padding: 24px 28px 22px; }
+    .run-modal[data-phase="ready"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "ready" "actions"; }
+    .run-modal[data-phase="countdown"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "actions"; align-content: center; min-height: 460px; }
     .modal-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
     .modal-top .eyebrow { color: var(--muted); }
     .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 22px; cursor: pointer; }
@@ -111,6 +113,23 @@
     .run-status[data-state="live"]::before { background: var(--orange); box-shadow: 0 0 0 4px #f2654525; }
     .run-clock { grid-area: clock; align-self: center; min-height: 1em; color: var(--ink); font: 600 clamp(60px, 7vw, 84px) var(--sans); letter-spacing: -.04em; font-variant-numeric: tabular-nums; transition: color .2s; }
     .run-clock.countdown-number { color: var(--orange); font-size: clamp(110px, 14vw, 140px); font-weight: 800; line-height: .9; letter-spacing: -.04em; animation: count-in .32s cubic-bezier(.2,.8,.2,1) both; }
+    .run-ready { grid-area: ready; position: relative; display: grid; min-height: 265px; align-content: end; overflow: hidden; padding: 27px 30px; background: #29372f url("https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1400&q=85") center 47% / cover no-repeat; color: white; }
+    .run-ready::before { position: absolute; inset: 0; background: linear-gradient(90deg, #111a19d9, #111a1955 60%, #111a1908); content: ""; }
+    .run-ready-copy { position: relative; z-index: 1; }
+    .run-ready-kicker { color: #e0f27a; font: 11px var(--mono); }
+    .run-ready-title { margin-top: 12px; font-size: clamp(30px, 5vw, 43px); font-weight: 800; line-height: 1.15; }
+    .run-ready-subtitle { margin-top: 8px; color: #e4e9e2; font-size: 12px; }
+    .run-modal[data-phase="ready"] .run-status,
+    .run-modal[data-phase="ready"] .run-clock,
+    .run-modal[data-phase="ready"] .run-metrics,
+    .run-modal[data-phase="ready"] .route-map,
+    .run-modal[data-phase="ready"] .location-note,
+    .run-modal[data-phase="live"] .run-ready,
+    .run-modal[data-phase="paused"] .run-ready,
+    .run-modal[data-phase="countdown"] .run-ready,
+    .run-modal[data-phase="countdown"] .run-metrics,
+    .run-modal[data-phase="countdown"] .route-map,
+    .run-modal[data-phase="countdown"] .location-note { display: none; }
     @keyframes count-in { from { opacity: .35; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
     .run-metrics { grid-area: metrics; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 12px 10px; border: 0; background: #f2f4ed; }
     .run-metric { min-height: 58px; padding: 7px 8px; }
@@ -126,6 +145,17 @@
     .route-map-placeholder span { color: #899082; font-size: 10px; }
     .route-map .leaflet-control-attribution { font-size: 9px; }
     .modal-actions { grid-area: actions; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding-top: 14px; border-top: 1px solid var(--line); }
+    .run-modal[data-phase="ready"] .modal-actions,
+    .run-modal[data-phase="countdown"] .modal-actions { grid-template-columns: minmax(0, 1fr); border-top: 0; padding-top: 0; }
+    .run-modal[data-phase="ready"] .modal-actions button:not(#start-run),
+    .run-modal[data-phase="countdown"] .modal-actions button:not(#start-run) { display: none; }
+    .run-modal[data-phase="live"] .modal-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .run-modal[data-phase="live"] #start-run,
+    .run-modal[data-phase="paused"] #pause-run { display: none; }
+    .run-modal[data-phase="paused"] .modal-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .run-modal[data-phase="ready"] #start-run { min-height: 62px; border-color: var(--orange); background: var(--orange); color: white; font-size: 14px; }
+    .run-modal[data-phase="ready"] #start-run:hover { background: #d95134; }
+    .run-modal[data-phase="countdown"] #start-run { min-height: 48px; border-color: transparent; background: transparent; color: var(--muted); }
     .modal-actions button { min-height: 48px; border: 1px solid #cfd5ca; background: transparent; color: var(--ink); font-size: 12px; font-weight: 700; cursor: pointer; transition: background .18s, color .18s; }
     .modal-actions button:hover:not(:disabled) { background: #edf0e8; }
     .modal-actions button.primary { border-color: var(--ink); background: var(--ink); color: white; }
@@ -159,17 +189,21 @@
       .stat-unit { display: block; margin: 4px 0 0; font-size: 9px; }
       .lower { grid-template-columns: 1fr; gap: 24px; }
       dialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; overflow: auto; border: 0; }
-      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "map" "note" "actions"; align-content: stretch; gap: 10px; padding: max(18px, env(safe-area-inset-top)) 18px max(16px, env(safe-area-inset-bottom)); }
+      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "map" "note" "actions"; align-content: stretch; gap: 9px; padding: max(14px, env(safe-area-inset-top)) 18px max(12px, env(safe-area-inset-bottom)); }
+      .run-modal[data-phase="ready"] { grid-template-areas: "top" "ready" "actions"; align-content: start; gap: 16px; }
+      .run-modal[data-phase="countdown"] { grid-template-areas: "top" "status" "clock" "actions"; min-height: 100%; gap: 15px; }
       .modal-top { padding-bottom: 10px; }
+      .run-ready { min-height: 250px; padding: 22px; background-position: 56% center; }
+      .run-ready-title { font-size: 32px; }
       .run-status { align-self: auto; margin-top: 2px; }
       .run-clock { font-size: clamp(58px, 16vw, 74px); }
       .run-clock.countdown-number { font-size: clamp(112px, 36vw, 136px); }
-      .run-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 8px; }
-      .run-metric { min-height: 52px; padding: 7px 8px; }
+      .run-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 6px; }
+      .run-metric { min-height: 46px; padding: 6px 8px; }
       .run-metric:nth-child(even) { border-left: 1px solid #d9ded4; }
       .run-metric:nth-child(n+3) { border-top: 1px solid #d9ded4; }
-      .route-map { min-height: 180px; height: 23dvh; max-height: 220px; }
-      .modal-actions { gap: 7px; margin-top: auto; padding-top: 11px; }
+      .route-map { min-height: 145px; height: 20dvh; max-height: 190px; }
+      .modal-actions { gap: 7px; margin-top: auto; padding-top: 8px; }
       .modal-actions button { min-height: 46px; padding: 0 5px; font-size: 11px; }
       .plan-grid { grid-template-columns: 1fr; }
       .records-list { padding: 0 16px; }
@@ -255,8 +289,11 @@
     </div>
   </div>
   <dialog id="run-dialog">
-    <div class="run-modal">
+    <div class="run-modal" data-phase="ready">
       <div class="modal-top"><span class="eyebrow">PACE / OUTDOOR RUN</span><button class="close-button" id="close-run" aria-label="닫기">×</button></div>
+      <div class="run-ready" id="run-ready" role="img" aria-label="야외 러닝 준비 화면">
+        <div class="run-ready-copy"><div class="run-ready-kicker">READY / OUTDOOR RUN</div><div class="run-ready-title">오늘의 리듬으로.</div><div class="run-ready-subtitle">PACE · FIELD SESSION</div></div>
+      </div>
       <div class="run-status" id="run-status" data-state="ready">READY WHEN YOU ARE</div>
       <div class="run-clock" id="run-clock" aria-live="polite">00:00:00</div>
       <div class="run-metrics">
@@ -290,6 +327,7 @@
     let watchId = null;
     let lastPosition = null;
     let isRunning = false;
+    let hasStartedRun = false;
     let routeMap = null;
     let routeLine = null;
     let routeMarker = null;
@@ -509,6 +547,8 @@
 
     function startRunNow() {
       isRunning = true;
+      hasStartedRun = true;
+      $(".run-modal").dataset.phase = "live";
       $("#run-clock").classList.remove("countdown-number");
       updateRunDisplay();
       $("#run-status").textContent = "RUN IN PROGRESS";
@@ -533,6 +573,7 @@
       }
       $("#run-clock").classList.remove("countdown-number");
       $("#run-clock").textContent = formatDuration(elapsedSeconds);
+      $(".run-modal").dataset.phase = "ready";
       $("#run-status").textContent = "READY WHEN YOU ARE";
       $("#run-status").dataset.state = "ready";
       $("#start-run").textContent = "러닝 시작";
@@ -584,6 +625,7 @@
     function speakCountdownStep(steps, index) {
       if (!isCountdownActive) return;
       if (index >= steps.length) {
+        $(".run-modal").dataset.phase = "countdown";
         $("#run-status").textContent = "START!";
         $("#run-status").dataset.state = "countdown";
         $("#run-clock").classList.remove("countdown-number");
@@ -636,11 +678,12 @@
         cancelRunCountdown();
         return;
       }
-      if (elapsedSeconds > 0) {
+      if (hasStartedRun) {
         startRunNow();
         return;
       }
       isCountdownActive = true;
+      $(".run-modal").dataset.phase = "countdown";
       prepareCountdownAudio();
       $("#start-run").textContent = "카운트다운 취소";
       speakCountdownStep(["러닝을 시작합니다.", "3", "2", "1"], 0);
@@ -652,6 +695,7 @@
       clearInterval(timerId);
       stopLocationWatch();
       stopCadenceSensor();
+      $(".run-modal").dataset.phase = "paused";
       $("#run-status").textContent = "PAUSED · CATCH YOUR BREATH";
       $("#run-status").dataset.state = "paused";
       $("#pause-run").textContent = "일시 정지됨";
@@ -669,10 +713,12 @@
       stopLocationWatch();
       stopCadenceSensor();
       isRunning = false;
+      hasStartedRun = false;
       elapsedSeconds = 0;
       distanceKm = 0;
       motionAvailable = false;
       $("#run-cadence").textContent = "--";
+      $(".run-modal").dataset.phase = "ready";
       routePoints = [];
       routeMap?.remove();
       routeMap = null;
@@ -704,6 +750,7 @@
     }));
     $$('[data-goto="records"]').forEach(button => button.addEventListener("click", () => $("[data-view=records]").click()));
     $("#open-run").addEventListener("click", () => {
+      $(".run-modal").dataset.phase = hasStartedRun ? "paused" : "ready";
       $("#run-dialog").showModal();
       if (routeMap) setTimeout(() => routeMap.invalidateSize(), 0);
     });
