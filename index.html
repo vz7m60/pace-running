@@ -101,8 +101,8 @@
     .plan-tag { display: inline-block; margin-top: 15px; padding: 5px 7px; background: #edf1d9; color: #535b37; font: 9px var(--mono); }
     dialog { width: min(820px, calc(100% - 32px)); max-width: 820px; max-height: calc(100dvh - 32px); padding: 0; overflow: auto; border: 1px solid #d8ddd3; color: var(--ink); background: var(--white); box-shadow: 0 24px 90px #10151055; }
     dialog::backdrop { background: #182019a8; backdrop-filter: blur(5px); }
-    .run-modal { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "top top" "status status" "clock metrics" "metrics metrics" "map map" "note note" "actions actions"; align-items: center; gap: 14px 24px; padding: 24px 28px 22px; }
-    .run-modal[data-phase="ready"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "ready" "actions"; }
+    .run-modal { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); grid-template-areas: "top top" "status status" "clock metrics" "metrics metrics" "guide guide" "map map" "note note" "actions actions"; align-items: center; gap: 14px 24px; padding: 24px 28px 22px; }
+    .run-modal[data-phase="ready"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "ready" "guide" "actions"; }
     .run-modal[data-phase="countdown"] { grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "actions"; align-content: center; min-height: 460px; }
     .modal-top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
     .modal-top .eyebrow { color: var(--muted); }
@@ -128,6 +128,7 @@
     .run-modal[data-phase="paused"] .run-ready,
     .run-modal[data-phase="countdown"] .run-ready,
     .run-modal[data-phase="countdown"] .run-metrics,
+    .run-modal[data-phase="countdown"] .cadence-guide,
     .run-modal[data-phase="countdown"] .route-map,
     .run-modal[data-phase="countdown"] .location-note { display: none; }
     @keyframes count-in { from { opacity: .35; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
@@ -137,6 +138,13 @@
     .run-metric-label { color: var(--muted); font-size: 10px; }
     .run-metric-value { margin-top: 7px; color: var(--ink); font: 700 18px var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .run-metric-unit { color: var(--muted); font: 9px var(--sans); }
+    .cadence-guide { grid-area: guide; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 5px 12px; padding: 10px 12px; border: 1px solid var(--line); background: #f7f8f3; }
+    .cadence-guide label { color: var(--ink); font-size: 11px; font-weight: 700; }
+    .cadence-guide output { color: var(--ink); font: 700 14px var(--sans); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cadence-target { grid-column: 1 / -1; width: 100%; height: 18px; margin: 0; accent-color: var(--orange); cursor: pointer; }
+    .cadence-range { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); }
+    .cadence-toggle { min-height: 30px; padding: 0 10px; border: 1px solid #cfd5ca; background: white; color: var(--muted); font: 10px var(--sans); cursor: pointer; }
+    .cadence-toggle[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
     .location-note { grid-area: note; min-height: 18px; color: var(--muted); font-size: 10px; }
     .route-map { grid-area: map; position: relative; height: clamp(200px, 31vh, 290px); min-height: 200px; margin: 0; overflow: hidden; border: 1px solid #d9ded4; background-color: #edf1e9; }
     .route-map-placeholder { position: absolute; inset: 0; z-index: 400; display: grid; place-content: center; gap: 7px; color: #495247; background-color: #edf1e9; background-image: linear-gradient(#dfe6dc 1px, transparent 1px), linear-gradient(90deg, #dfe6dc 1px, transparent 1px); background-size: 36px 36px; text-align: center; font-size: 12px; pointer-events: none; }
@@ -189,8 +197,8 @@
       .stat-unit { display: block; margin: 4px 0 0; font-size: 9px; }
       .lower { grid-template-columns: 1fr; gap: 24px; }
       dialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; overflow: auto; border: 0; }
-      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "map" "note" "actions"; align-content: stretch; gap: 9px; padding: max(14px, env(safe-area-inset-top)) 18px max(12px, env(safe-area-inset-bottom)); }
-      .run-modal[data-phase="ready"] { grid-template-areas: "top" "ready" "actions"; align-content: start; gap: 16px; }
+      .run-modal { min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-areas: "top" "status" "clock" "metrics" "guide" "map" "note" "actions"; align-content: stretch; gap: 7px; padding: max(12px, env(safe-area-inset-top)) 18px max(10px, env(safe-area-inset-bottom)); }
+      .run-modal[data-phase="ready"] { grid-template-areas: "top" "ready" "guide" "actions"; align-content: start; gap: 12px; }
       .run-modal[data-phase="countdown"] { grid-template-areas: "top" "status" "clock" "actions"; min-height: 100%; gap: 15px; }
       .modal-top { padding-bottom: 10px; }
       .run-ready { min-height: 250px; padding: 22px; background-position: 56% center; }
@@ -202,7 +210,7 @@
       .run-metric { min-height: 46px; padding: 6px 8px; }
       .run-metric:nth-child(even) { border-left: 1px solid #d9ded4; }
       .run-metric:nth-child(n+3) { border-top: 1px solid #d9ded4; }
-      .route-map { min-height: 145px; height: 20dvh; max-height: 190px; }
+      .route-map { min-height: 125px; height: 15dvh; max-height: 150px; }
       .modal-actions { gap: 7px; margin-top: auto; padding-top: 8px; }
       .modal-actions button { min-height: 46px; padding: 0 5px; font-size: 11px; }
       .plan-grid { grid-template-columns: 1fr; }
@@ -300,7 +308,14 @@
         <div class="run-metric"><div class="run-metric-label">거리</div><div class="run-metric-value"><span id="run-distance">0.00</span> km</div></div>
         <div class="run-metric"><div class="run-metric-label">평균 페이스</div><div class="run-metric-value"><span id="run-pace">--:--</span></div></div>
         <div class="run-metric"><div class="run-metric-label">칼로리</div><div class="run-metric-value"><span id="run-calories">0</span> kcal</div></div>
-        <div class="run-metric" title="휴대폰 모션 센서로 추정한 분당 걸음 수"><div class="run-metric-label">케이던스</div><div class="run-metric-value"><span id="run-cadence">--</span> <span class="run-metric-unit">SPM</span></div></div>
+        <div class="run-metric" title="휴대폰 모션 센서로 측정한 현재 케이던스"><div class="run-metric-label">현재 케이던스</div><div class="run-metric-value"><span id="run-cadence">--</span> <span class="run-metric-unit">SPM</span></div><span class="run-metric-unit" id="run-cadence-target">목표 170</span></div>
+      </div>
+      <div class="cadence-guide">
+        <label for="cadence-target">케이던스 비프</label>
+        <output id="cadence-target-value" for="cadence-target">170 SPM</output>
+        <button class="cadence-toggle" id="metronome-toggle" type="button" aria-pressed="true">비프 켜짐</button>
+        <input class="cadence-target" id="cadence-target" type="range" min="150" max="200" step="1" value="170" aria-label="목표 케이던스, 분당 걸음 수">
+        <div class="cadence-range"><span>150 SPM</span><span>200 SPM</span></div>
       </div>
       <div class="route-map" id="route-map" aria-label="실시간 러닝 경로 지도">
         <div class="route-map-placeholder" id="route-map-placeholder">GPS 연결을 기다리고 있어요<span>러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다</span></div>
@@ -337,6 +352,9 @@
     let stepTimestamps = [];
     let lastStepTimestamp = 0;
     let motionAvailable = false;
+    let cadenceTarget = 170;
+    let isMetronomeEnabled = true;
+    let metronomeTimerId = null;
     let isCountdownActive = false;
     let countdownTimeoutId = null;
     let countdownAudioContext = null;
@@ -488,6 +506,60 @@
       updateCadenceDisplay();
     }
 
+    function updateCadenceGuideDisplay() {
+      cadenceTarget = Number($("#cadence-target").value);
+      $("#cadence-target-value").textContent = `${cadenceTarget} SPM`;
+      $("#run-cadence-target").textContent = `목표 ${cadenceTarget}`;
+      $("#metronome-toggle").setAttribute("aria-pressed", String(isMetronomeEnabled));
+      $("#metronome-toggle").textContent = isMetronomeEnabled ? "비프 켜짐" : "비프 꺼짐";
+      $("#metronome-toggle").setAttribute("aria-label", isMetronomeEnabled ? "케이던스 비프 끄기" : "케이던스 비프 켜기");
+    }
+
+    function stopCadenceMetronome() {
+      clearInterval(metronomeTimerId);
+      metronomeTimerId = null;
+      if (navigator.vibrate) navigator.vibrate(0);
+    }
+
+    function playCadenceBeat(audioContext) {
+      if (audioContext.state !== "running") return;
+      const oscillator = audioContext.createOscillator();
+      const gain = audioContext.createGain();
+      const startTime = audioContext.currentTime;
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(1120, startTime);
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.12, startTime + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.09);
+      oscillator.connect(gain);
+      gain.connect(audioContext.destination);
+      oscillator.onended = () => {
+        oscillator.disconnect();
+        gain.disconnect();
+      };
+      oscillator.start(startTime);
+      oscillator.stop(startTime + 0.095);
+    }
+
+    function startCadenceMetronome() {
+      stopCadenceMetronome();
+      if (!isRunning || !isMetronomeEnabled) return;
+      const audioContext = countdownAudioContext;
+      const beatInterval = 60000 / cadenceTarget;
+      if (!audioContext || audioContext.state === "closed") {
+        if (navigator.vibrate) {
+          navigator.vibrate(55);
+          metronomeTimerId = setInterval(() => navigator.vibrate(55), beatInterval);
+        }
+        return;
+      }
+      audioContext.resume().then(() => {
+        if (!isRunning || !isMetronomeEnabled || audioContext !== countdownAudioContext) return;
+        playCadenceBeat(audioContext);
+        metronomeTimerId = setInterval(() => playCadenceBeat(audioContext), beatInterval);
+      }).catch(() => {});
+    }
+
     function stopLocationWatch() {
       if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
       watchId = null;
@@ -559,6 +631,7 @@
       timerId = setInterval(() => { elapsedSeconds += 1; updateRunDisplay(); }, 1000);
       startCadenceSensor();
       startLocationWatch();
+      startCadenceMetronome();
     }
 
     function cancelRunCountdown() {
@@ -612,10 +685,6 @@
       oscillator.onended = () => {
         oscillator.disconnect();
         gain.disconnect();
-        if (countdownAudioContext === audioContext) {
-          countdownAudioContext = null;
-          audioContext.close().catch(() => {});
-        }
         onended();
       };
       oscillator.start(startTime);
@@ -695,6 +764,8 @@
       clearInterval(timerId);
       stopLocationWatch();
       stopCadenceSensor();
+      stopCadenceMetronome();
+      countdownAudioContext?.suspend().catch(() => {});
       $(".run-modal").dataset.phase = "paused";
       $("#run-status").textContent = "PAUSED · CATCH YOUR BREATH";
       $("#run-status").dataset.state = "paused";
@@ -712,6 +783,12 @@
       clearInterval(timerId);
       stopLocationWatch();
       stopCadenceSensor();
+      stopCadenceMetronome();
+      if (countdownAudioContext && countdownAudioContext.state !== "closed") {
+        const audioContext = countdownAudioContext;
+        countdownAudioContext = null;
+        audioContext.close().catch(() => {});
+      }
       isRunning = false;
       hasStartedRun = false;
       elapsedSeconds = 0;
@@ -762,6 +839,20 @@
     $("#start-run").addEventListener("click", beginRun);
     $("#pause-run").addEventListener("click", pauseRun);
     $("#finish-run").addEventListener("click", finishRun);
+    $("#cadence-target").addEventListener("input", updateCadenceGuideDisplay);
+    $("#cadence-target").addEventListener("change", () => {
+      if (isRunning && isMetronomeEnabled) startCadenceMetronome();
+    });
+    $("#metronome-toggle").addEventListener("click", () => {
+      isMetronomeEnabled = !isMetronomeEnabled;
+      updateCadenceGuideDisplay();
+      if (!isRunning) return;
+      if (isMetronomeEnabled) startCadenceMetronome();
+      else {
+        stopCadenceMetronome();
+        countdownAudioContext?.suspend().catch(() => {});
+      }
+    });
     $("#run-dialog").addEventListener("click", event => {
       if (event.target === $("#run-dialog") && !isRunning) {
         if (isCountdownActive) cancelRunCountdown();
@@ -773,6 +864,7 @@
     $("#header-date").textContent = now.toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
     $("#today-date").textContent = now.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
     renderDashboard();
+    updateCadenceGuideDisplay();
   </script>
 </body>
 </html>
