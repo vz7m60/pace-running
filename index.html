@@ -157,6 +157,8 @@
     .run-modal[data-phase="ready"] .pause-note,
     .run-modal[data-phase="live"] .pause-note { display: none; }
     .run-modal[data-phase="paused"] .pause-note { grid-area: pause; display: block; }
+    .run-modal[data-phase="live"] .run-target-control,
+    .run-modal[data-phase="paused"] .run-target-control { display: none; }
     .run-target-control { grid-area: target; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 9px 12px; border: 1px solid var(--line); background: #fafbf7; }
     .run-target-control label { color: var(--ink); font-size: 10px; font-weight: 700; }
     .run-target-control output { color: var(--ink); font-size: 11px; font-weight: 700; }
@@ -507,12 +509,15 @@
     let timerId = null;
     let watchId = null;
     let lastPosition = null;
+    let lastDistancePosition = null;
+    let lastRoutePosition = null;
+    let lastGpsFixAt = 0;
     let isRunning = false;
     let hasStartedRun = false;
     let routeMap = null;
     let routeLine = null;
     let routeMarker = null;
-    let routePoints = [];
+    let routeSegments = [];
     let motionListener = null;
     let motionSamples = [];
     let stepTimestamps = [];
@@ -543,8 +548,10 @@
     }
 
     function saveRuns() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(runs));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(runs)); }
+      catch { return false; }
       renderDashboard();
+      return true;
     }
 
     function formatDuration(seconds) {
@@ -594,6 +601,20 @@
       if (!pauseStartedAt) return;
       const pausedSeconds = Math.floor((Date.now() - pauseStartedAt) / 1000);
       $("#pause-note").textContent = `일시정지 ${formatDuration(pausedSeconds)} · 이 시간은 러닝 기록에서 제외됩니다.`;
+    }
+
+    function updateGpsFreshness(now = Date.now()) {
+      if (!isRunning || !navigator.geolocation) return;
+      if (!lastGpsFixAt) {
+        if (elapsedSeconds >= 12) $("#location-note").textContent = "GPS 신호를 찾지 못했어요. 위치 권한과 네트워크를 확인해 주세요.";
+        return;
+      }
+      const fixAgeSeconds = Math.floor((now - lastGpsFixAt) / 1000);
+      if (fixAgeSeconds >= 15) {
+        lastDistancePosition = null;
+        lastRoutePosition = null;
+        $("#location-note").textContent = `GPS 신호가 끊겼어요 · 마지막 위치 ${fixAgeSeconds}초 전`;
+      }
     }
 
     function selectRunTab(tabName) {
@@ -649,6 +670,7 @@
       updateCadenceDisplay();
       updatePostureDisplay();
       checkVoiceGuidance();
+      updateGpsFreshness();
     }
 
     function updateCadenceDisplay(now = performance.now()) {
@@ -843,6 +865,19 @@
       if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
       watchId = null;
       lastPosition = null;
+      lastDistancePosition = null;
+      lastRoutePosition = null;
+      lastGpsFixAt = 0;
+    }
+
+    function gpsDistanceMeters(firstPosition, secondPosition) {
+      const toRadians = value => value * Math.PI / 180;
+      const latitudeDelta = toRadians(secondPosition.latitude - firstPosition.latitude);
+      const longitudeDelta = toRadians(secondPosition.longitude - firstPosition.longitude);
+      const latitude1 = toRadians(firstPosition.latitude);
+      const latitude2 = toRadians(secondPosition.latitude);
+      const haversine = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(longitudeDelta / 2) ** 2;
+      return 6371000 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
     }
 
     function startLocationWatch() {
@@ -850,28 +885,48 @@
         $("#location-note").textContent = "이 브라우저에서 위치를 사용할 수 없어요. 시간은 계속 기록됩니다.";
         return;
       }
+      lastGpsFixAt = 0;
+      $("#location-note").textContent = "GPS 신호를 찾는 중이에요…";
       watchId = navigator.geolocation.watchPosition(position => {
         if (position.coords.accuracy > 50) {
           $("#location-note").textContent = `GPS 신호를 찾는 중 · 정확도 ${Math.round(position.coords.accuracy)} m`;
           return;
         }
         const point = [position.coords.latitude, position.coords.longitude];
+        const currentPosition = { latitude: position.coords.latitude, longitude: position.coords.longitude };
         let meters = 0;
-        if (lastPosition) {
-          const toRadians = value => value * Math.PI / 180;
-          const latitudeDelta = toRadians(position.coords.latitude - lastPosition.latitude);
-          const longitudeDelta = toRadians(position.coords.longitude - lastPosition.longitude);
-          const latitude1 = toRadians(lastPosition.latitude);
-          const latitude2 = toRadians(position.coords.latitude);
-          const haversine = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(longitudeDelta / 2) ** 2;
-          meters = 6371000 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+        if (lastDistancePosition) {
+          meters = gpsDistanceMeters(lastDistancePosition, currentPosition);
           if (meters >= 2 && meters < 100) {
             distanceKm += meters / 1000;
-            routePoints.push(point);
-            routeLine.setLatLngs(routePoints);
+            lastDistancePosition = currentPosition;
+          } else if (meters >= 100) {
+            lastDistancePosition = currentPosition;
           }
+        } else {
+          lastDistancePosition = currentPosition;
         }
-        lastPosition = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+
+        let routeMeters = 0;
+        let routeChanged = false;
+        if (lastRoutePosition) {
+          routeMeters = gpsDistanceMeters(lastRoutePosition, currentPosition);
+          if (routeMeters >= 1.5 && routeMeters < 100) {
+            routeSegments[routeSegments.length - 1].push(point);
+            lastRoutePosition = currentPosition;
+            routeChanged = true;
+          } else if (routeMeters >= 100) {
+            routeSegments.push([point]);
+            lastRoutePosition = currentPosition;
+            routeChanged = true;
+          }
+        } else {
+          routeSegments.push([point]);
+          lastRoutePosition = currentPosition;
+          routeChanged = true;
+        }
+        lastPosition = currentPosition;
+        lastGpsFixAt = Date.now();
         $("#favorite-place").disabled = false;
         if (!routeMap && window.L) {
           routeMap = L.map("route-map", { zoomControl: true }).setView(point, 16);
@@ -879,14 +934,14 @@
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(routeMap);
-          routePoints = [point];
-          routeLine = L.polyline(routePoints, { color: "#f26545", weight: 5, lineCap: "round", lineJoin: "round" }).addTo(routeMap);
+          routeLine = L.polyline(routeSegments, { color: "#f26545", weight: 5, lineCap: "round", lineJoin: "round" }).addTo(routeMap);
           routeMarker = L.circleMarker(point, { radius: 7, color: "#20231f", weight: 3, fillColor: "#d7f36a", fillOpacity: 1 }).addTo(routeMap);
           $("#route-map-placeholder").hidden = true;
           setTimeout(() => routeMap.invalidateSize(), 0);
         } else if (routeMap) {
           routeMarker.setLatLng(point);
-          if (meters >= 2 && meters < 100) routeMap.panTo(point, { animate: false });
+          if (routeChanged) routeLine.setLatLngs(routeSegments);
+          if (routeMeters >= 1.5 && routeMeters < 100) routeMap.panTo(point, { animate: false });
         } else {
           $("#route-map-placeholder").innerHTML = '지도를 불러올 수 없어요<span>인터넷 연결을 확인해 주세요</span>';
         }
@@ -894,7 +949,10 @@
         recentDistanceSamples.push({ time: Date.now(), distance: distanceKm });
         updateRunDisplay();
       }, () => {
-        $("#location-note").textContent = "위치 권한을 확인할 수 없어요. 시간은 계속 기록됩니다.";
+        lastGpsFixAt = 0;
+        lastDistancePosition = null;
+        lastRoutePosition = null;
+        $("#location-note").textContent = "GPS를 사용할 수 없어요. 위치 권한을 확인해 주세요.";
       }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 12000 });
     }
 
@@ -1073,7 +1131,11 @@
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
         runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, photo: runPhotoDataUrl });
-        saveRuns();
+        if (!saveRuns()) {
+          runs.shift();
+          showToast(runPhotoDataUrl ? "저장 공간이 부족해요. 사진을 제거하거나 공간을 확보한 뒤 다시 저장해 주세요." : "기기 저장소를 사용할 수 없어 기록을 저장하지 못했어요.");
+          return;
+        }
         showToast("러닝 기록을 저장했어요.");
       }
       clearInterval(timerId);
@@ -1111,7 +1173,9 @@
       $("#pause-note").hidden = true;
       $(".run-modal").dataset.phase = "ready";
       selectRunTab("guide");
-      routePoints = [];
+      routeSegments = [];
+      lastRoutePosition = null;
+      lastDistancePosition = null;
       routeMap?.remove();
       routeMap = null;
       routeLine = null;
