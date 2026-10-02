@@ -66,12 +66,10 @@
     .run-button { display: inline-flex; width: fit-content; align-items: center; gap: 11px; margin-top: 25px; padding: 14px 19px; border: 0; background: var(--ink); color: white; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s, transform .2s; }
     .run-button:hover { background: #40453e; transform: translateY(-2px); }
     .play { color: var(--lime); font-size: 11px; }
-    .home-run-goal { display: flex; width: min(290px, 100%); align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 11px; border-top: 1px solid #455b5940; color: #455b59; font-size: 11px; }
-    .home-run-goal-control, .weekly-goal-control { display: inline-flex; align-items: center; gap: 5px; }
-    .home-run-goal-control input, .weekly-goal-control input { height: 32px; padding: 0 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--ink); background: var(--white); font: 12px var(--mono); text-align: right; }
-    .home-run-goal-control input { width: 72px; }
+    .weekly-goal-control { display: inline-flex; align-items: center; gap: 5px; }
+    .weekly-goal-control input { height: 32px; padding: 0 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--ink); background: var(--white); font: 12px var(--mono); text-align: right; }
     .weekly-goal-control input { width: 66px; }
-    .home-run-goal-control input:focus-visible, .weekly-goal-control input:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+    .weekly-goal-control input:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
     .weekly { position: absolute; z-index: 2; top: 22px; right: 22px; padding: 10px 13px; background: var(--lime); font: 10px var(--mono); }
     .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 22px 0 39px; background: var(--white); }
     .stat { padding: 20px 24px; border-right: 1px solid var(--line); }
@@ -167,6 +165,8 @@
     .run-info-button { width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 18px; cursor: pointer; }
     .close-button { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--line); background: transparent; color: var(--ink); font-size: 22px; cursor: pointer; }
     .close-button:hover { background: #edf0e8; }
+    .run-modal[data-phase="live"] #close-run,
+    .run-modal[data-phase="paused"] #close-run { display: none; }
     .run-status { grid-area: status; display: flex; align-items: center; gap: 8px; align-self: end; margin: 0; color: var(--muted); font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; }
     .run-status::before { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: #a4aa9e; content: ""; }
     .run-status[data-state="live"]::before { background: var(--orange); box-shadow: 0 0 0 4px #f2654525; }
@@ -215,11 +215,28 @@
     .run-modal[data-phase="paused"] .pause-note { grid-area: pause; display: block; }
     .run-modal[data-phase="live"] .run-target-control,
     .run-modal[data-phase="paused"] .run-target-control { display: none; }
-    .run-target-control { grid-area: target; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 9px 12px; border: 1px solid var(--line); background: #fafbf7; }
-    .run-target-control label { color: var(--ink); font-size: 10px; font-weight: 700; }
-    .run-target-control output { color: var(--ink); font-size: 11px; font-weight: 700; }
-      .run-target-control input { grid-column: 1 / -1; width: 100%; height: 14px; margin: 0; accent-color: var(--orange); }
-    .target-distance-range { grid-column: 1 / -1; display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); }
+    .run-target-control { grid-area: target; display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); background: #fafbf7; }
+    .run-target-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .run-target-control label { color: var(--ink); font-size: 12px; font-weight: 700; }
+    .run-target-control output { color: #174f3c; font: 700 18px var(--mono); }
+    .run-target-adjusters { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; align-items: center; gap: 12px; }
+    .run-target-adjusters button { min-height: 48px; border: 1px solid var(--line); background: white; color: var(--ink); font-size: 22px; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+    .run-target-adjusters button:disabled { opacity: .4; cursor: default; }
+    .run-target-adjusters input { width: 100%; height: 28px; margin: 0; accent-color: var(--orange); }
+    .run-goal-presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    .run-goal-preset { min-height: 40px; border: 1px solid var(--line); background: white; color: var(--ink); font: 600 11px var(--mono); cursor: pointer; touch-action: manipulation; }
+    .run-goal-preset[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
+    .target-distance-range { display: flex; justify-content: space-between; color: var(--muted); font: 9px var(--mono); }
+    .run-time-goal-control { display: grid; gap: 8px; padding-top: 11px; border-top: 1px solid var(--line); }
+    .run-time-adjusters { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; align-items: center; gap: 10px; }
+    .run-time-adjusters button { min-height: 40px; border: 1px solid var(--line); background: white; color: var(--ink); font-size: 20px; cursor: pointer; touch-action: manipulation; }
+    .run-time-adjusters button:disabled { opacity: .4; cursor: default; }
+    .run-time-adjusters span { color: var(--muted); font-size: 10px; text-align: center; }
+    .run-time-presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    .run-time-preset { min-height: 38px; border: 1px solid var(--line); background: white; color: var(--ink); font: 600 10px var(--mono); cursor: pointer; touch-action: manipulation; }
+    .run-time-preset[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: white; }
+    .run-time-goal-meta { display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; color: var(--muted); font-size: 10px; }
+    .run-time-goal-meta strong { color: var(--orange); font-weight: 700; }
     .pause-note { padding: 10px 12px; border: 1px solid #edcf9c; background: #fff5df; color: #70552f; font-size: 11px; }
     @keyframes count-in { from { opacity: .35; transform: scale(.72); } to { opacity: 1; transform: scale(1); } }
     .run-metrics { grid-area: metrics; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 12px 10px; border: 0; background: #f2f4ed; }
@@ -324,9 +341,9 @@
       .main { padding: 30px 20px 48px; }
       .welcome { margin-bottom: 22px; }
       .date { max-width: 105px; text-align: right; line-height: 1.5; }
-      .hero { grid-template-columns: 1fr; min-height: 430px; }
-      .hero-copy { min-height: 290px; padding: 27px 24px; }
-      .hero-art { position: absolute; inset: 265px 0 0; min-height: 165px; }
+      .hero { grid-template-columns: 1fr; min-height: 390px; }
+      .hero-copy { min-height: 235px; padding: 27px 24px; }
+      .hero-art { position: absolute; inset: 210px 0 0; min-height: 180px; }
       .hero-art::after { background: linear-gradient(180deg, #b9dce8 0%, rgba(185,220,232,.06) 55%); }
       .weekly { top: 14px; right: 14px; }
       .run-button { margin-top: 18px; }
@@ -410,10 +427,6 @@
               <h2>오늘의 한 걸음이<br>내일의 페이스가 돼요.</h2>
               <p>가볍게 시작해도 충분한 러닝하기 좋은 날</p>
               <button class="run-button" id="open-run"><span class="play">▶</span> 러닝 시작하기</button>
-              <div class="home-run-goal">
-                <label for="home-run-goal">이번 러닝 목표</label>
-                <div class="home-run-goal-control"><input id="home-run-goal" type="number" min="1" max="42" step="0.5" value="5" inputmode="decimal" aria-label="러닝 목표 거리, 킬로미터"><span>km</span></div>
-              </div>
             </div>
             <div class="hero-art" role="img" aria-label="야외에서 달리는 러너"></div>
             <div class="weekly"><span id="weekly-goal-badge-label">WEEKLY GOAL</span>&nbsp; <span id="weekly-goal-badge-value">12 KM</span></div>
@@ -469,6 +482,7 @@
         <div class="run-distance-label">달린 거리</div>
         <div class="run-distance-value"><span id="run-distance">0.00</span><span>km</span></div>
         <div class="run-distance-meta"><span id="run-target-label">목표 5 km</span><strong id="run-remaining">5.0 km 남음</strong></div>
+        <div class="run-time-goal-meta" id="run-time-goal-meta" hidden><span id="run-time-goal-label"></span><strong id="run-time-remaining"></strong></div>
         <div class="run-distance-track"><span id="run-target-fill"></span></div>
       </section>
       <div class="run-elapsed"><div class="run-metric-label">달린 시간</div><div class="run-clock" id="run-clock" aria-live="polite">00:00</div></div>
@@ -479,10 +493,31 @@
         <div class="run-metric" title="휴대폰 모션 센서로 측정한 현재 케이던스"><div class="run-metric-label">케이던스</div><div class="run-metric-value"><span id="run-cadence">--</span> <span class="run-metric-unit">SPM</span></div><span class="run-metric-unit" id="run-cadence-target">목표 170 · 최근 20초</span></div>
       </div>
       <div class="run-target-control">
-        <label for="target-distance">목표 거리</label>
+        <div class="run-target-header"><label for="target-distance">이번 러닝 목표</label>
         <output id="target-distance-value" for="target-distance">5.0 km</output>
-        <input id="target-distance" type="range" min="1" max="42" step="0.5" value="5" aria-label="목표 거리, 킬로미터">
+        </div>
+        <div class="run-target-adjusters">
+          <button id="target-distance-decrease" type="button" aria-label="목표 거리 0.5km 줄이기">−</button>
+          <input id="target-distance" type="range" min="1" max="42" step="0.1" value="5" aria-label="목표 거리, 킬로미터">
+          <button id="target-distance-increase" type="button" aria-label="목표 거리 0.5km 늘리기">+</button>
+        </div>
+        <div class="run-goal-presets" role="group" aria-label="자주 쓰는 목표 거리 선택">
+          <button class="run-goal-preset" type="button" data-run-goal="3" aria-pressed="false">3 km</button>
+          <button class="run-goal-preset" type="button" data-run-goal="5" aria-pressed="false">5 km</button>
+          <button class="run-goal-preset" type="button" data-run-goal="10" aria-pressed="false">10 km</button>
+          <button class="run-goal-preset" type="button" data-run-goal="21.1" aria-pressed="false">21.1 km</button>
+        </div>
         <div class="target-distance-range"><span>1 km</span><span>42 km</span></div>
+        <div class="run-time-goal-control">
+          <div class="run-target-header"><span>목표 시간</span><output id="target-time-value">제한 없음</output></div>
+          <div class="run-time-adjusters"><button id="target-time-decrease" type="button" aria-label="목표 시간 5분 줄이기">−</button><span id="target-time-step-label">5분 단위</span><button id="target-time-increase" type="button" aria-label="목표 시간 5분 늘리기">+</button></div>
+          <div class="run-time-presets" role="group" aria-label="자주 쓰는 시간 목표 선택">
+            <button class="run-time-preset" type="button" data-time-goal="0" aria-pressed="true">제한 없음</button>
+            <button class="run-time-preset" type="button" data-time-goal="45" aria-pressed="false">45분</button>
+            <button class="run-time-preset" type="button" data-time-goal="60" aria-pressed="false">60분</button>
+            <button class="run-time-preset" type="button" data-time-goal="90" aria-pressed="false">90분</button>
+          </div>
+        </div>
       </div>
       <div class="pause-note" id="pause-note" hidden>멈춘 동안은 러닝 시간과 페이스에 포함하지 않아요.</div>
       <div class="run-tabs" role="tablist" aria-label="러닝 정보">
@@ -596,6 +631,17 @@
       "이번 주 계획": "Weekly plan",
       "이번 러닝 목표": "Run distance goal",
       "주간 목표 거리": "Weekly distance goal",
+      "목표 시간": "Time goal",
+      "분": "min",
+      "시간 목표 5분 줄이기": "Decrease time goal by 5 min",
+      "시간 목표 5분 늘리기": "Increase time goal by 5 min",
+      "자주 쓰는 시간 목표 선택": "Common time goals",
+      "제한 없음": "No limit",
+      "5분 단위": "5-minute steps",
+      "시간 목표 초과": "Time goal exceeded",
+      "목표 거리 0.5km 줄이기": "Decrease goal by 0.5 km",
+      "목표 거리 0.5km 늘리기": "Increase goal by 0.5 km",
+      "자주 쓰는 목표 거리 선택": "Common distance goals",
       "안녕하세요, 러너님.": "Hello, runner.",
       "오늘의 한 걸음이": "Every step today",
       "내일의 페이스가 돼요.": "sets tomorrow's pace.",
@@ -760,6 +806,8 @@
     let isMetronomeEnabled = true;
     let metronomeTimerId = null;
     let targetDistanceKm = 5;
+    let targetDurationMinutes = 0;
+    let timeGoalNotified = false;
     let weeklyGoalKm = 12;
     let runSplits = [];
     let runPhotoDataUrl = null;
@@ -804,16 +852,41 @@
       targetDistanceKm = Number($("#target-distance").value);
       const remainingDistance = Math.max(0, targetDistanceKm - distanceKm);
       $("#target-distance-value").textContent = `${targetDistanceKm.toFixed(1)} km`;
-      $("#home-run-goal").value = targetDistanceKm.toFixed(1);
+      $("#target-distance-decrease").disabled = targetDistanceKm <= 1;
+      $("#target-distance-increase").disabled = targetDistanceKm >= 42;
+      $$(".run-goal-preset").forEach(button => button.setAttribute("aria-pressed", String(Number(button.dataset.runGoal) === targetDistanceKm)));
       $("#run-target-label").textContent = `${t("목표", "Goal")} ${targetDistanceKm.toFixed(1)} km`;
       $("#run-remaining").textContent = remainingDistance > 0 ? t(`${remainingDistance.toFixed(1)} km 남음`, `${remainingDistance.toFixed(1)} km remaining`) : t("목표 달성", "Goal reached");
       $("#run-target-fill").style.width = `${Math.min(100, distanceKm / targetDistanceKm * 100)}%`;
+      updateRunTimeGoalDisplay();
       if (distanceKm >= 0.05 && elapsedSeconds > 0) {
         const estimatedDuration = Math.round(elapsedSeconds / distanceKm * targetDistanceKm);
         $("#run-eta").textContent = formatDuration(estimatedDuration);
       } else {
         $("#run-eta").textContent = "--:--";
       }
+    }
+
+    function updateRunTimeGoalDisplay() {
+      const hasTimeGoal = targetDurationMinutes > 0;
+      $("#target-time-value").textContent = hasTimeGoal ? `${targetDurationMinutes} ${t("분", "min")}` : t("제한 없음", "No limit");
+      $("#target-time-step-label").textContent = hasTimeGoal ? `${targetDurationMinutes} ${t("분", "min")}` : t("5분 단위", "5-minute steps");
+      $("#target-time-decrease").disabled = !hasTimeGoal || targetDurationMinutes <= 5;
+      $("#target-time-increase").disabled = !hasTimeGoal || targetDurationMinutes >= 600;
+      $$(".run-time-preset").forEach(button => button.setAttribute("aria-pressed", String(Number(button.dataset.timeGoal) === targetDurationMinutes)));
+      $("#run-time-goal-meta").hidden = !hasTimeGoal;
+      if (!hasTimeGoal) return;
+      const remainingSeconds = targetDurationMinutes * 60 - elapsedSeconds;
+      $("#run-time-goal-label").textContent = t(`시간 목표 · ${targetDurationMinutes}분 이내`, `Time goal · within ${targetDurationMinutes} min`);
+      $("#run-time-remaining").textContent = remainingSeconds > 0
+        ? t(`남은 ${formatShortDuration(remainingSeconds)}`, `${formatShortDuration(remainingSeconds)} left`)
+        : `${t("시간 목표 초과", "Time goal exceeded")} ${formatShortDuration(-remainingSeconds)}`;
+    }
+
+    function checkRunTimeGoal() {
+      if (!isRunning || !targetDurationMinutes || timeGoalNotified || elapsedSeconds < targetDurationMinutes * 60) return;
+      timeGoalNotified = true;
+      showToast(t("시간 목표에 도달했어요. 원하면 계속 달려도 괜찮아요.", "Time goal reached. You can keep running if you like."));
     }
 
     function updateRecentPace(now = Date.now()) {
@@ -899,6 +972,7 @@
       const distance = Number(run.distance) || 0;
       const duration = Number(run.duration) || 0;
       const goalDistance = Number(run.goalDistance) || 0;
+      const goalDurationMinutes = Number(run.goalDurationMinutes) || 0;
       const goalPercent = goalDistance > 0 ? Math.round(distance / goalDistance * 100) : null;
       const stepCount = Number(run.steps) || 0;
       const stepLength = distance > 0 && stepCount > 0 ? (distance * 1000 / stepCount).toFixed(2) : null;
@@ -968,7 +1042,11 @@
         ? comparisonRows.join("")
         : `<p class="run-health-note">${t("삼성헬스 수치를 입력하면 거리·시간·걸음 수 차이를 비교합니다.", "Add Samsung Health values to compare distance, time, and steps.")}</p>`;
       const healthForm = `<details class="health-data-editor"><summary>${t("삼성헬스 데이터 입력 / 수정", "Add / edit Samsung Health data")}</summary><p class="run-health-note">${t("Galaxy Watch 데이터를 직접 입력해요. 이 브라우저는 워치에 직접 연결되지 않습니다.", "Enter Galaxy Watch data manually. This browser does not connect directly to the watch.")}</p><div class="health-data-grid">${inputField("distanceKm", t("삼성 거리 (km)", "Samsung distance (km)"), health.distanceKm, "0.01")}<label class="health-data-field">${t("삼성 운동 시간 (분:초)", "Samsung exercise time (min:sec)")}<input type="text" inputmode="numeric" placeholder="07:34" data-health-duration value="${health.durationSeconds ? formatShortDuration(health.durationSeconds) : ""}"></label>${inputField("averageSpeedKmh", t("평균 속도 (km/h)", "Avg speed (km/h)"), health.averageSpeedKmh, "0.1")}${inputField("averageHeartRateBpm", t("평균 심박수 (bpm)", "Avg heart rate (bpm)"), health.averageHeartRateBpm)}${inputField("caloriesKcal", t("칼로리 (kcal)", "Calories (kcal)"), health.caloriesKcal)}${inputField("steps", t("삼성 걸음 수", "Samsung steps"), health.steps)}${inputField("elevationGainM", t("고도 상승 (m)", "Elevation gain (m)"), health.elevationGainM)}${inputField("vo2Max", "VO₂ max (ml/kg/min)", health.vo2Max, "0.1")}${inputField("sweatLossMl", t("땀 손실 추정 (ml)", "Est. sweat loss (ml)"), health.sweatLossMl)}</div><h4 class="health-zone-input-heading">${t("심박 구간별 시간 (분, 선택)", "Heart rate zone time (min, optional)")}</h4><div class="health-data-grid">${zoneFields}</div><button class="health-data-save" type="button">${t("비교 데이터 저장", "Save comparison data")}</button></details>`;
-      const goalDetails = goalPercent === null ? t("목표 거리 정보가 저장되지 않은 기록입니다.", "This run has no saved distance goal.") : `${goalPercent}% · ${distance.toFixed(2)} / ${goalDistance.toFixed(1)} km ${goalPercent >= 100 ? t("달성", "completed") : t("진행", "complete")}`;
+      const distanceGoalDetails = goalPercent === null ? t("목표 거리 정보가 저장되지 않은 기록입니다.", "This run has no saved distance goal.") : `${goalPercent}% · ${distance.toFixed(2)} / ${goalDistance.toFixed(1)} km ${goalPercent >= 100 ? t("달성", "completed") : t("진행", "complete")}`;
+      const timeGoalDetails = goalDurationMinutes > 0
+        ? `${t("목표 시간", "Time goal")} ${goalDurationMinutes} ${t("분", "min")} · ${formatShortDuration(duration)} / ${formatShortDuration(goalDurationMinutes * 60)} ${duration <= goalDurationMinutes * 60 ? t("이내 달성", "met") : t("초과", "exceeded")}`
+        : t("시간 제한 없음", "No time limit");
+      const goalDetails = `${distanceGoalDetails}<br>${timeGoalDetails}`;
       const routeSplitLabel = splits.length ? t("GPS 1km 구간 페이스", "GPS 1 km splits") : t("구간 페이스", "Split pace");
       const comparisonTitle = t("PACE와 Samsung Health 비교", "PACE vs Samsung Health");
       return `<details class="run-analysis"><summary><span>${t("러닝 결과 분석", "Run analysis")}</span><span class="analysis-open-hint">${t("펼쳐 보기", "View details")}</span></summary><div class="run-analysis-body"><div class="run-result-hero"><div><div class="run-result-distance">${distance.toFixed(2)} <span>km</span></div><div class="run-result-date">${new Date(run.date).toLocaleString(isEnglish ? "en-US" : "ko-KR")}</div></div><strong class="run-result-time">${formatShortDuration(duration)}</strong></div><div class="run-analysis-grid"><div class="run-analysis-stat"><span>${t("평균 페이스", "Avg pace")}</span><strong>${formatPace(duration, distance)} /km</strong></div><div class="run-analysis-stat"><span>${t("목표 달성률", "Goal completion")}</span><strong>${goalPercent === null ? "--" : `${goalPercent}%`}</strong><div class="run-analysis-progress"><span style="width:${goalPercent === null ? 0 : Math.min(100, goalPercent)}%"></span></div></div><div class="run-analysis-stat"><span>${t("평균 보폭 추정", "Est. step length")}</span><strong>${stepLength ? `${stepLength} m` : "--"}</strong><small>${t("GPS 거리 ÷ 걸음 수", "GPS distance / steps")}</small></div><div class="run-analysis-stat"><span>${t("목표 거리", "Distance goal")}</span><strong>${goalDistance > 0 ? `${goalDistance.toFixed(1)} km` : "--"}</strong></div></div><p class="run-analysis-note">${goalDetails}</p>${healthSummary}<section class="run-detail-section"><h4>${t("경로", "Route")}</h4>${routeMarkup}</section><section class="run-detail-section"><h4>${t("심박수 구간", "Heart rate zones")}</h4>${zoneMarkup}</section>${healthForm}<section class="run-detail-section"><h4>${comparisonTitle}</h4>${comparisonMarkup}</section><div class="run-splits"><h4>${routeSplitLabel}</h4>${splitMarkup}</div></div></details>`;
@@ -1112,6 +1190,7 @@
       $("#run-distance").textContent = distanceKm.toFixed(2);
       $("#run-calories").textContent = Math.round(distanceKm * 62);
       updateRunGoalDisplay();
+      checkRunTimeGoal();
       updateRecentPace();
       updateCadenceDisplay();
       updatePostureDisplay();
@@ -1424,7 +1503,10 @@
     }
 
     function startRunNow() {
-      if (!hasStartedRun) lastAnnouncedDistanceStep = Math.floor(distanceKm / (targetDistanceKm / 10));
+      if (!hasStartedRun) {
+        lastAnnouncedDistanceStep = Math.floor(distanceKm / (targetDistanceKm / 10));
+        timeGoalNotified = false;
+      }
       isRunning = true;
       hasStartedRun = true;
       $(".run-modal").dataset.phase = "live";
@@ -1598,7 +1680,7 @@
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       let finishedRecord = null;
       if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
-        finishedRecord = { date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, splits: runSplits.map(split => ({ ...split })), route: compactRunRoute(routeSegments), photo: runPhotoDataUrl };
+        finishedRecord = { date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, goalDurationMinutes: targetDurationMinutes, steps: totalStepCount, splits: runSplits.map(split => ({ ...split })), route: compactRunRoute(routeSegments), photo: runPhotoDataUrl };
         runs.unshift(finishedRecord);
         if (!saveRuns()) {
           runs.shift();
@@ -1864,24 +1946,31 @@
       catch {}
       if (!isVoiceGuidanceEnabled && "speechSynthesis" in window) window.speechSynthesis.cancel();
     });
-    $("#target-distance").addEventListener("input", () => {
+    function setRunTargetDistance(value) {
+      const requestedDistance = Number(value);
+      if (!Number.isFinite(requestedDistance)) return;
+      $("#target-distance").value = String(Math.min(42, Math.max(1, Math.round(requestedDistance * 10) / 10)));
       updateRunGoalDisplay();
       if (isRunning) lastAnnouncedDistanceStep = Math.floor(distanceKm / (targetDistanceKm / 10));
       try { localStorage.setItem("pace-target-distance-v1", String(targetDistanceKm)); }
       catch {}
-    });
-    $("#home-run-goal").addEventListener("change", event => {
-      const enteredGoal = Number(event.currentTarget.value);
-      if (!Number.isFinite(enteredGoal) || enteredGoal < 1 || enteredGoal > 42) {
-        event.currentTarget.value = targetDistanceKm.toFixed(1);
-        return;
-      }
-      const nextGoal = Math.round(enteredGoal * 2) / 2;
-      $("#target-distance").value = String(nextGoal);
-      updateRunGoalDisplay();
-      try { localStorage.setItem("pace-target-distance-v1", String(targetDistanceKm)); }
+    }
+    function setRunTimeGoal(value) {
+      const requestedMinutes = Number(value);
+      if (!Number.isFinite(requestedMinutes)) return;
+      targetDurationMinutes = requestedMinutes === 0 ? 0 : Math.min(600, Math.max(5, Math.round(requestedMinutes / 5) * 5));
+      timeGoalNotified = false;
+      updateRunTimeGoalDisplay();
+      try { localStorage.setItem("pace-target-time-v1", String(targetDurationMinutes)); }
       catch {}
-    });
+    }
+    $("#target-distance").addEventListener("input", event => setRunTargetDistance(event.currentTarget.value));
+    $("#target-distance-decrease").addEventListener("click", () => setRunTargetDistance(targetDistanceKm - 0.5));
+    $("#target-distance-increase").addEventListener("click", () => setRunTargetDistance(targetDistanceKm + 0.5));
+    $$(".run-goal-preset").forEach(button => button.addEventListener("click", () => setRunTargetDistance(button.dataset.runGoal)));
+    $("#target-time-decrease").addEventListener("click", () => { if (targetDurationMinutes > 0) setRunTimeGoal(targetDurationMinutes - 5); });
+    $("#target-time-increase").addEventListener("click", () => { if (targetDurationMinutes > 0) setRunTimeGoal(targetDurationMinutes + 5); });
+    $$(".run-time-preset").forEach(button => button.addEventListener("click", () => setRunTimeGoal(button.dataset.timeGoal)));
     $("#weekly-goal").addEventListener("change", event => {
       const enteredGoal = Number(event.currentTarget.value);
       if (!Number.isFinite(enteredGoal) || enteredGoal < 1 || enteredGoal > 200) {
@@ -1922,6 +2011,8 @@
     $("#today-date").textContent = now.toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric", weekday: "long" });
     const savedTargetDistance = Number(localStorage.getItem("pace-target-distance-v1"));
     if (savedTargetDistance >= 1 && savedTargetDistance <= 42) $("#target-distance").value = String(savedTargetDistance);
+    const savedTargetDuration = Number(localStorage.getItem("pace-target-time-v1"));
+    if (savedTargetDuration >= 5 && savedTargetDuration <= 600) targetDurationMinutes = Math.round(savedTargetDuration / 5) * 5;
     const savedWeeklyGoal = Number(localStorage.getItem("pace-weekly-goal-v1"));
     if (savedWeeklyGoal >= 1 && savedWeeklyGoal <= 200) weeklyGoalKm = savedWeeklyGoal;
     renderDashboard();
