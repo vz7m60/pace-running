@@ -2,6 +2,8 @@
 
 This Android Studio project wraps the current PACE web app in a native Android WebView. The app loads `https://vz7m60.github.io/pace-running/`, so an internet connection is required. Run history, goal settings, photos, and manually entered Samsung Health values stay in the Android app's WebView storage and are separate from Chrome.
 
+For APK download, Galaxy installation steps, and the security warning explanation, see the [Korean Android installation guide](INSTALL_KO.md).
+
 ## Android integrations
 
 - Requests Android location permission for browser GPS tracking.
