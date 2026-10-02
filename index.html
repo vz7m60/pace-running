@@ -32,7 +32,12 @@
     .brand { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 800; letter-spacing: .02em; }
     .brand-mark { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; background: var(--ink); color: var(--lime); font-size: 16px; }
     .top-right { display: flex; gap: 25px; align-items: center; color: var(--muted); font-size: 13px; }
-    .language-switch { padding: 5px 8px; border: 1px solid var(--line); color: var(--ink); font: 10px var(--mono); text-decoration: none; }
+    .language-switch { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 7px; padding: 0 9px; border: 1px solid var(--ink); border-radius: 3px; background: var(--ink); color: white; box-shadow: 0 2px 0 #20231f24; font: 10px var(--mono); text-decoration: none; transition: background .18s, transform .18s; }
+    .language-switch:hover { transform: translateY(-1px); border-color: var(--orange); background: var(--orange); }
+    .language-switch:focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+    .language-option { display: inline-flex; align-items: center; gap: 3px; opacity: .66; }
+    .language-option.current { color: var(--lime); opacity: 1; font-weight: 800; }
+    .language-switch-divider { color: white; font-size: 12px; opacity: .75; }
     .avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #e4b8a1; color: var(--ink); font-weight: 800; }
     .layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); max-width: 1440px; margin: auto; min-height: calc(100vh - 76px); }
     aside { padding: 38px 20px 24px 6.2%; border-right: 1px solid var(--line); }
@@ -335,8 +340,11 @@
     footer { margin-top: 44px; color: var(--muted); font: 9px var(--mono); }
 
     @media (max-width: 760px) {
-      .topbar { height: 62px; padding: 0 20px; }
-      .top-right { gap: 12px; font-size: 11px; }
+      .topbar { height: 62px; padding: 0 14px; }
+      .top-right { gap: 9px; font-size: 11px; }
+      .language-switch { min-height: 36px; gap: 4px; padding: 0 6px; font-size: 9px; }
+      .language-option { gap: 2px; }
+      .language-switch-divider { font-size: 10px; }
       .layout { display: block; min-height: calc(100vh - 62px); }
       aside { position: sticky; top: 0; z-index: 3; padding: 0 12px; border-right: 0; border-bottom: 1px solid var(--line); background: var(--paper); }
       .nav-label, .week-card { display: none; }
@@ -403,7 +411,7 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark">↗</span>PACE</div>
-      <div class="top-right"><a class="language-switch" id="language-switch" href="index.en.html" lang="en">EN</a><span id="header-date"></span><span class="avatar">R</span></div>
+      <div class="top-right"><a class="language-switch" id="language-switch" href="index.en.html" lang="en" aria-label="English version"><span class="language-option" id="language-ko-option"><span aria-hidden="true">🇰🇷</span><span>KO</span></span><span class="language-switch-divider" aria-hidden="true">↔</span><span class="language-option" id="language-en-option"><span aria-hidden="true">🇺🇸</span><span>EN</span></span></a><span id="header-date"></span><span class="avatar">R</span></div>
     </header>
     <div class="layout">
       <aside>
@@ -775,8 +783,10 @@
       document.documentElement.lang = isEnglish ? "en" : "ko";
       document.title = isEnglish ? "PACE — Running Log" : "PACE — 러닝 로그";
       languageSwitch.href = isEnglish ? "index.html" : "index.en.html";
-      languageSwitch.textContent = isEnglish ? "KO" : "EN";
+      languageSwitch.lang = isEnglish ? "ko" : "en";
       languageSwitch.setAttribute("aria-label", isEnglish ? "Korean version" : "English version");
+      $("#language-ko-option").classList.toggle("current", !isEnglish);
+      $("#language-en-option").classList.toggle("current", isEnglish);
       if (!isEnglish) return;
       const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
       let textNode;
