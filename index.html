@@ -32,6 +32,7 @@
     .brand { display: flex; align-items: center; gap: 11px; font-size: 19px; font-weight: 800; letter-spacing: .02em; }
     .brand-mark { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; background: var(--ink); color: var(--lime); font-size: 16px; }
     .top-right { display: flex; gap: 25px; align-items: center; color: var(--muted); font-size: 13px; }
+    .language-switch { padding: 5px 8px; border: 1px solid var(--line); color: var(--ink); font: 10px var(--mono); text-decoration: none; }
     .avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #e4b8a1; color: var(--ink); font-weight: 800; }
     .layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); max-width: 1440px; margin: auto; min-height: calc(100vh - 76px); }
     aside { padding: 38px 20px 24px 6.2%; border-right: 1px solid var(--line); }
@@ -157,6 +158,8 @@
     .run-modal[data-phase="ready"] .pause-note,
     .run-modal[data-phase="live"] .pause-note { display: none; }
     .run-modal[data-phase="paused"] .pause-note { grid-area: pause; display: block; }
+    .run-modal[data-phase="live"] .run-target-control,
+    .run-modal[data-phase="paused"] .run-target-control { display: none; }
     .run-target-control { grid-area: target; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 9px 12px; border: 1px solid var(--line); background: #fafbf7; }
     .run-target-control label { color: var(--ink); font-size: 10px; font-weight: 700; }
     .run-target-control output { color: var(--ink); font-size: 11px; font-weight: 700; }
@@ -321,7 +324,7 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand"><span class="brand-mark">↗</span>PACE</div>
-      <div class="top-right"><span id="header-date"></span><span class="avatar">R</span></div>
+      <div class="top-right"><a class="language-switch" id="language-switch" href="index.en.html" lang="en">EN</a><span id="header-date"></span><span class="avatar">R</span></div>
     </header>
     <div class="layout">
       <aside>
@@ -500,19 +503,185 @@
     const STORAGE_KEY = "pace-runs-v1";
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => [...document.querySelectorAll(selector)];
-    const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+    const isEnglish = new URLSearchParams(location.search).get("lang") === "en";
+    const t = (korean, english) => isEnglish ? english : korean;
+    const dayNames = isEnglish ? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] : ["일", "월", "화", "수", "목", "금", "토"];
+    const englishText = new Map(Object.entries({
+      "주 메뉴": "Main menu",
+      "러닝 정보": "Run details",
+      "누적 통계": "Run statistics",
+      "요일별 러닝 거리": "Weekly distance by day",
+      "야외에서 달리는 러너": "Runner outdoors",
+      "야외 러닝 준비 화면": "Outdoor run ready screen",
+      "목표 거리, 킬로미터": "Distance goal, kilometers",
+      "목표 케이던스, 분당 걸음 수": "Target cadence, steps per minute",
+      "러닝 사진": "Run photo",
+      "닫기": "Close",
+      "러닝 시작": "Start run",
+      "일시 정지": "Pause",
+      "일시 정지됨": "Paused",
+      "화면 잠김": "Touch locked",
+      "달리는 동안 실수로 눌리지 않도록 잠겼어요.": "Touch lock is on to avoid accidental taps while running.",
+      "3초 길게 눌러 해제": "Hold for 3 sec to unlock",
+      "Workspace": "Workspace",
+      "이번 주 거리": "This week",
+      "이번 주 러닝": "Runs this week",
+      "평균 페이스": "Avg pace",
+      "대시보드": "Dashboard",
+      "러닝 기록": "Run history",
+      "이번 주 계획": "Weekly plan",
+      "안녕하세요, 러너님.": "Hello, runner.",
+      "오늘의 한 걸음이": "Every step today",
+      "내일의 페이스가 돼요.": "sets tomorrow's pace.",
+      "가볍게 시작해도 충분한 러닝하기 좋은 날": "A good day for an easy run.",
+      "러닝 시작하기": "Start a run",
+      "최근 러닝": "Recent runs",
+      "전체 기록 →": "All runs →",
+      "아직 기록이 없어요. 첫 러닝을 시작해보세요.": "No runs yet. Start your first run.",
+      "주간 목표": "Weekly goal",
+      "목표 거리": "Distance goal",
+      "첫 러닝을 시작해볼까요?": "Ready for your first run?",
+      "BUILD YOUR RHYTHM": "BUILD YOUR RHYTHM",
+      "이번 주 계획": "This week's plan",
+      "편안한 조깅": "Easy jog",
+      "대화할 수 있는 속도로 가볍게": "Keep a pace where you can talk.",
+      "회복의 날": "Recovery day",
+      "가벼운 스트레칭과 충분한 휴식": "Gentle stretching and plenty of rest.",
+      "리듬 찾기": "Find your rhythm",
+      "워밍업 후 편안하게 빠른 구간": "Warm up, then run a comfortably hard interval.",
+      "몸을 쉬게 하기": "Rest your body",
+      "수분을 챙기고 몸의 신호 듣기": "Hydrate and listen to your body.",
+      "가볍게 한 바퀴": "Easy loop",
+      "기분 좋은 페이스로 마무리": "Finish at a pace that feels good.",
+      "천천히 멀리": "Long and easy",
+      "이번 주 가장 긴 거리, 서두르지 않기": "Your longest run this week. Take it easy.",
+      "PACE / OUTDOOR RUN": "PACE / OUTDOOR RUN",
+      "오늘의 리듬으로.": "Find your rhythm.",
+      "달린 거리": "Distance",
+      "달린 시간": "Run time",
+      "예상 완주": "Est. finish",
+      "현재 페이스": "Current pace",
+      "최근 30초": "Last 30 sec",
+      "현재 페이스 기준": "At current pace",
+      "칼로리": "Calories",
+      "케이던스": "Cadence",
+      "전체 러닝": "Run total",
+      "평균 걸음폭": "Avg stride",
+      "GPS 거리 기준": "From GPS distance",
+      "착지 충격": "Impact",
+      "최근 20초 · m/s²": "Last 20 sec · m/s²",
+      "좌우 밸런스": "Left/right balance",
+      "양발 센서 필요": "Requires foot sensors",
+      "자세 지표는 휴대폰 착용 위치와 방향에 따라 달라질 수 있어요.": "Form metrics vary with how and where you carry your phone.",
+      "목표 달성": "Goal reached",
+      "GPS 신호를 기다리고 있어요": "Waiting for GPS",
+      "GPS 연결을 기다리고 있어요": "Waiting for GPS",
+      "러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다": "Start to see your location and route.",
+      "지도를 불러올 수 없어요": "Map unavailable",
+      "인터넷 연결을 확인해 주세요": "Check your internet connection.",
+      "시작을 누르면 위치 권한을 요청합니다.": "Start to request location access.",
+      "READY / OUTDOOR RUN": "READY / OUTDOOR RUN",
+      "지도": "Map",
+      "자세": "Form",
+      "가이드": "Guide",
+      "케이던스 비프": "Cadence beat",
+      "비프 켜짐": "Beep on",
+      "비프 꺼짐": "Beep off",
+      "음성 안내": "Voice updates",
+      "목표 거리의 10%마다 페이스 안내": "Pace update every 10% of your goal",
+      "화면 잠그기": "Lock screen",
+      "화면 잠금": "Touch lock",
+      "터치 잠김": "Touch locked",
+      "좋은 곳": "Favorite place",
+      "사진 촬영": "Take photo",
+      "공유": "Share",
+      "종료 및 저장": "Finish & save",
+      "러닝 재개": "Resume run",
+      "일시 정지됨": "Paused",
+      "PAUSED · CATCH YOUR BREATH": "PAUSED · CATCH YOUR BREATH",
+      "일시정지": "Paused",
+      "멈춘 동안은 러닝 시간과 페이스에 포함하지 않아요.": "Paused time is excluded from your run time and pace.",
+      "READY WHEN YOU ARE": "READY WHEN YOU ARE",
+      "데이터와 안전 안내": "Data & safety",
+      "어디에 저장되나요?": "Where is my data stored?",
+      "공유하면 무엇이 전달되나요?": "What is shared?",
+      "비밀번호와 개인정보": "Passwords & privacy",
+      "러닝 중 안전": "Run safely",
+      "확인": "Got it",
+      "안내 닫기": "Close information",
+      "러닝 기록, 사진, 목표 거리와 저장한 좋은 곳의 GPS 좌표는 ": "Run records, photos, distance goals, and saved GPS places are ",
+      "이 기기의 브라우저 저장소에만 보관됩니다.": "stored only in this device's browser storage.",
+      "앱 자체에서 별도로 암호화하지 않습니다.": "the app does not add its own encryption.",
+      "계정 서버로 업로드하거나 기기 사이에 동기화하지 않으며, ": "It is not uploaded to an account server or synced between devices, and ",
+      "브라우저 데이터를 지우면 함께 삭제될 수 있어요.": "clearing browser data may delete it.",
+      "공유 기능은 거리·시간·페이스 요약과 앱 주소만 보냅니다.": "Sharing sends only your distance, time, pace summary, and the app link.",
+      "사진, 경로 좌표, 좋은 곳은 자동으로 첨부하지 않습니다.": "Photos, route coordinates, and saved places are not attached automatically.",
+      "이 앱과 저장소는 공개 상태라 링크를 아는 누구나 앱과 코드를 볼 수 있지만, 다른 사람 기기에 저장된 러닝 기록을 볼 수는 없습니다.": "This app and repository are public, so anyone with the link can view the app and code. Your run history stays in your own browser.",
+      "앱 자체 로그인이나 비밀번호 보호는 없습니다.": "The app has no login or built-in password protection.",
+      "휴대폰의 강한 화면 잠금 비밀번호/생체 잠금을 사용하고, 잠금 해제된 기기나 브라우저 프로필을 다른 사람과 공유하지 마세요.": "Use a strong phone passcode or biometric lock. Do not share an unlocked device or browser profile.",
+      "지도는 OpenStreetMap에서 불러오며, 지도 타일 요청으로 대략적인 지도 영역과 접속 IP가 해당 서비스에 전달될 수 있습니다.": "Maps use OpenStreetMap. Map tile requests may reveal the approximate map area and your IP address to that service.",
+      "휴대폰은 손에 들기보다 허리 벨트 등에 몸에 밀착해 고정하세요.": "Secure your phone close to your body in a waist belt rather than holding it.",
+      "주변을 계속 살피고, 도로를 건널 때는 화면을 보지 마세요.": "Stay aware of your surroundings and never look at the screen while crossing a road.",
+      "음성 안내를 켜고, 필요하면 화면 잠금을 사용하세요.": "Turn on voice updates and use touch lock when needed.",
+      "화면 잠금은 앱 터치만 막으며 휴대폰의 OS 잠금 비밀번호를 대신하지 않습니다.": "Touch lock only blocks taps in the app; it does not replace your phone's passcode.",
+      "저장 공간이 부족해요. 사진을 제거하거나 공간을 확보한 뒤 다시 저장해 주세요.": "Not enough storage. Remove the photo or free space, then save again.",
+      "기기 저장소를 사용할 수 없어 기록을 저장하지 못했어요.": "Device storage is unavailable, so the run could not be saved.",
+      "러닝 사진을 추가했어요.": "Run photo added.",
+      "사진을 불러오지 못했어요.": "Could not load the photo.",
+      "현재 위치를 좋은 곳에 저장했어요.": "Current location saved as a favorite place.",
+      "GPS 위치를 받은 뒤 저장할 수 있어요.": "Wait for a GPS fix before saving a favorite place.",
+      "위치를 저장하지 못했어요.": "Could not save this location.",
+      "이 브라우저에서는 화면 잠금을 지원하지 않아요.": "Touch lock is not supported in this browser.",
+      "화면 잠금을 허용하지 못했어요.": "Could not keep the screen awake.",
+      "저장한 좋은 곳": "Saved place",
+      "야외 러닝": "Outdoor run",
+      "첫 러닝을 시작해보세요.": "Start your first run.",
+      "A LITTLE GOES A LONG WAY": "A LITTLE GOES A LONG WAY",
+      "YOUR MILES, YOUR STORY": "YOUR MILES, YOUR STORY"
+    }));
+    function translateText(value) {
+      let translated = value;
+      const translations = [...englishText].sort((first, second) => second[0].length - first[0].length);
+      for (const [korean, english] of translations) translated = translated.replaceAll(korean, english);
+      return translated;
+    }
+
+    function applyEnglishPage() {
+      const languageSwitch = $("#language-switch");
+      document.documentElement.lang = isEnglish ? "en" : "ko";
+      document.title = isEnglish ? "PACE — Running Log" : "PACE — 러닝 로그";
+      languageSwitch.href = isEnglish ? "index.html" : "index.en.html";
+      languageSwitch.textContent = isEnglish ? "KO" : "EN";
+      languageSwitch.setAttribute("aria-label", isEnglish ? "Korean version" : "English version");
+      if (!isEnglish) return;
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+      let textNode;
+      while ((textNode = walker.nextNode())) textNode.nodeValue = translateText(textNode.nodeValue);
+      document.querySelectorAll("[aria-label], [title], [alt]").forEach(element => {
+        for (const attribute of ["aria-label", "title", "alt"]) {
+          if (element.hasAttribute(attribute)) element.setAttribute(attribute, translateText(element.getAttribute(attribute)));
+        }
+      });
+      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day, index) => {
+        const dayLabel = $("#week-bars").parentElement.querySelectorAll(".week-days span")[index];
+        if (dayLabel) dayLabel.textContent = day;
+      });
+    }
     let runs = loadRuns();
     let elapsedSeconds = 0;
     let distanceKm = 0;
     let timerId = null;
     let watchId = null;
     let lastPosition = null;
+    let lastDistancePosition = null;
+    let lastRoutePosition = null;
+    let lastGpsFixAt = 0;
     let isRunning = false;
     let hasStartedRun = false;
     let routeMap = null;
     let routeLine = null;
     let routeMarker = null;
-    let routePoints = [];
+    let routeSegments = [];
     let motionListener = null;
     let motionSamples = [];
     let stepTimestamps = [];
@@ -543,8 +712,10 @@
     }
 
     function saveRuns() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(runs));
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(runs)); }
+      catch { return false; }
       renderDashboard();
+      return true;
     }
 
     function formatDuration(seconds) {
@@ -564,8 +735,8 @@
       targetDistanceKm = Number($("#target-distance").value);
       const remainingDistance = Math.max(0, targetDistanceKm - distanceKm);
       $("#target-distance-value").textContent = `${targetDistanceKm.toFixed(1)} km`;
-      $("#run-target-label").textContent = `목표 ${targetDistanceKm.toFixed(1)} km`;
-      $("#run-remaining").textContent = remainingDistance > 0 ? `${remainingDistance.toFixed(1)} km 남음` : "목표 달성";
+      $("#run-target-label").textContent = `${t("목표", "Goal")} ${targetDistanceKm.toFixed(1)} km`;
+      $("#run-remaining").textContent = remainingDistance > 0 ? t(`${remainingDistance.toFixed(1)} km 남음`, `${remainingDistance.toFixed(1)} km remaining`) : t("목표 달성", "Goal reached");
       $("#run-target-fill").style.width = `${Math.min(100, distanceKm / targetDistanceKm * 100)}%`;
       if (distanceKm >= 0.05 && elapsedSeconds > 0) {
         const estimatedDuration = Math.round(elapsedSeconds / distanceKm * targetDistanceKm);
@@ -593,7 +764,21 @@
     function updatePauseNote() {
       if (!pauseStartedAt) return;
       const pausedSeconds = Math.floor((Date.now() - pauseStartedAt) / 1000);
-      $("#pause-note").textContent = `일시정지 ${formatDuration(pausedSeconds)} · 이 시간은 러닝 기록에서 제외됩니다.`;
+      $("#pause-note").textContent = `${t("일시정지", "Paused")} ${formatDuration(pausedSeconds)} · ${t("이 시간은 러닝 기록에서 제외됩니다.", "This time is excluded from your run time.")}`;
+    }
+
+    function updateGpsFreshness(now = Date.now()) {
+      if (!isRunning || !navigator.geolocation) return;
+      if (!lastGpsFixAt) {
+        if (elapsedSeconds >= 12) $("#location-note").textContent = t("GPS 신호를 찾지 못했어요. 위치 권한과 네트워크를 확인해 주세요.", "GPS unavailable. Check location permission and network.");
+        return;
+      }
+      const fixAgeSeconds = Math.floor((now - lastGpsFixAt) / 1000);
+      if (fixAgeSeconds >= 15) {
+        lastDistancePosition = null;
+        lastRoutePosition = null;
+        $("#location-note").textContent = t(`GPS 신호가 끊겼어요 · 마지막 위치 ${fixAgeSeconds}초 전`, `GPS signal lost · last fix ${fixAgeSeconds}s ago`);
+      }
     }
 
     function selectRunTab(tabName) {
@@ -616,9 +801,9 @@
 
     function makeActivityRow(run) {
       const date = new Date(run.date);
-      const day = `${dayNames[date.getDay()]}, ${date.toLocaleDateString("ko-KR", { month: "long", day: "numeric" })}`;
+      const day = `${dayNames[date.getDay()]}, ${date.toLocaleDateString(isEnglish ? "en-US" : "ko-KR", { month: "long", day: "numeric" })}`;
       const symbol = run.photo ? `<img src="${run.photo}" alt="러닝 사진">` : "↗";
-      return `<div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">야외 러닝</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>`;
+      return `<div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">${t("야외 러닝", "Outdoor run")}</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>`;
     }
 
     function renderDashboard() {
@@ -631,9 +816,9 @@
       $("#week-total").textContent = `${weekDistance.toFixed(1)} KM`;
       $("#goal-distance").textContent = weekDistance.toFixed(1);
       $("#goal-progress").style.width = `${Math.min(100, weekDistance / 12 * 100)}%`;
-      $("#goal-note").textContent = weekDistance >= 12 ? "이번 주 목표를 달성했어요!" : `목표까지 ${(12 - weekDistance).toFixed(1)} km 남았어요`;
-      $("#recent-list").innerHTML = runs.length ? runs.slice(0, 3).map(makeActivityRow).join("") : '<div class="empty">아직 기록이 없어요. 첫 러닝을 시작해보세요.</div>';
-      $("#all-records").innerHTML = runs.length ? runs.map(makeActivityRow).join("") : '<div class="empty">첫 러닝을 마치면 이곳에 기록이 쌓여요.</div>';
+      $("#goal-note").textContent = weekDistance >= 12 ? t("이번 주 목표를 달성했어요!", "Weekly goal reached!") : isEnglish ? `${(12 - weekDistance).toFixed(1)} km to goal` : `목표까지 ${(12 - weekDistance).toFixed(1)} km 남았어요`;
+      $("#recent-list").innerHTML = runs.length ? runs.slice(0, 3).map(makeActivityRow).join("") : `<div class="empty">${t("아직 기록이 없어요. 첫 러닝을 시작해보세요.", "No runs yet. Start your first run.")}</div>`;
+      $("#all-records").innerHTML = runs.length ? runs.map(makeActivityRow).join("") : `<div class="empty">${t("첫 러닝을 마치면 이곳에 기록이 쌓여요.", "Your first run will appear here.")}</div>`;
       const days = Array(7).fill(0);
       weekRuns.forEach(run => { const index = (new Date(run.date).getDay() + 6) % 7; days[index] += run.distance; });
       const maxDistance = Math.max(4, ...days);
@@ -649,6 +834,7 @@
       updateCadenceDisplay();
       updatePostureDisplay();
       checkVoiceGuidance();
+      updateGpsFreshness();
     }
 
     function updateCadenceDisplay(now = performance.now()) {
@@ -752,15 +938,15 @@
     function updateCadenceGuideDisplay() {
       cadenceTarget = Number($("#cadence-target").value);
       $("#cadence-target-value").textContent = `${cadenceTarget} SPM`;
-      $("#run-cadence-target").textContent = `목표 ${cadenceTarget}`;
+      $("#run-cadence-target").textContent = `${t("목표", "Goal")} ${cadenceTarget}`;
       $("#metronome-toggle").setAttribute("aria-pressed", String(isMetronomeEnabled));
-      $("#metronome-toggle").textContent = isMetronomeEnabled ? "비프 켜짐" : "비프 꺼짐";
-      $("#metronome-toggle").setAttribute("aria-label", isMetronomeEnabled ? "케이던스 비프 끄기" : "케이던스 비프 켜기");
+      $("#metronome-toggle").textContent = isMetronomeEnabled ? t("비프 켜짐", "Beep on") : t("비프 꺼짐", "Beep off");
+      $("#metronome-toggle").setAttribute("aria-label", isMetronomeEnabled ? t("케이던스 비프 끄기", "Turn cadence beep off") : t("케이던스 비프 켜기", "Turn cadence beep on"));
     }
 
     function updateVoiceGuideControls() {
       $("#voice-guidance-toggle").setAttribute("aria-pressed", String(isVoiceGuidanceEnabled));
-      $("#voice-guidance-toggle").textContent = isVoiceGuidanceEnabled ? "켜짐" : "꺼짐";
+      $("#voice-guidance-toggle").textContent = isVoiceGuidanceEnabled ? t("켜짐", "On") : t("꺼짐", "Off");
     }
 
     function announceRunProgress(milestoneDistanceKm, milestoneStep) {
@@ -768,11 +954,20 @@
       const currentPace = $("#run-pace").textContent;
       const milestoneMeters = Math.round(milestoneDistanceKm * 1000);
       const remainingDistance = Math.max(0, targetDistanceKm - milestoneDistanceKm);
-      const milestoneSpeech = milestoneMeters < 1000 ? `${milestoneMeters}미터` : `${(milestoneMeters / 1000).toFixed(1)}킬로미터`;
-      const remainingSpeech = remainingDistance < 1 ? `${Math.round(remainingDistance * 1000)}미터` : `${remainingDistance.toFixed(1)}킬로미터`;
-      const paceSpeech = currentPace === "--:--" ? "최근 페이스는 측정 중입니다." : `최근 페이스 ${currentPace.split(":")[0]}분 ${currentPace.split(":")[1]}초 퍼 킬로미터.`;
-      const utterance = new SpeechSynthesisUtterance(`목표의 ${milestoneStep * 10}퍼센트입니다. ${milestoneSpeech}를 달렸어요. ${paceSpeech} 목표까지 ${remainingSpeech} 남았습니다.`);
-      utterance.lang = "ko-KR";
+      const milestoneSpeech = isEnglish
+        ? milestoneMeters < 1000 ? `${milestoneMeters} meters` : `${(milestoneMeters / 1000).toFixed(1)} kilometers`
+        : milestoneMeters < 1000 ? `${milestoneMeters}미터` : `${(milestoneMeters / 1000).toFixed(1)}킬로미터`;
+      const remainingSpeech = isEnglish
+        ? remainingDistance < 1 ? `${Math.round(remainingDistance * 1000)} meters` : `${remainingDistance.toFixed(1)} kilometers`
+        : remainingDistance < 1 ? `${Math.round(remainingDistance * 1000)}미터` : `${remainingDistance.toFixed(1)}킬로미터`;
+      const paceSpeech = isEnglish
+        ? currentPace === "--:--" ? "Current pace is still being measured." : `Recent pace ${currentPace.split(":")[0]} minutes ${currentPace.split(":")[1]} seconds per kilometer.`
+        : currentPace === "--:--" ? "최근 페이스는 측정 중입니다." : `최근 페이스 ${currentPace.split(":")[0]}분 ${currentPace.split(":")[1]}초 퍼 킬로미터.`;
+      const speechText = isEnglish
+        ? `${milestoneStep * 10} percent of your goal. ${milestoneSpeech} completed. ${paceSpeech} ${remainingSpeech} remaining.`
+        : `목표의 ${milestoneStep * 10}퍼센트입니다. ${milestoneSpeech}를 달렸어요. ${paceSpeech} 목표까지 ${remainingSpeech} 남았습니다.`;
+      const utterance = new SpeechSynthesisUtterance(speechText);
+      utterance.lang = isEnglish ? "en-US" : "ko-KR";
       utterance.rate = 1;
       const restartMetronome = () => {
         if (isRunning && isMetronomeEnabled) startCadenceMetronome();
@@ -843,35 +1038,68 @@
       if (watchId !== null && navigator.geolocation) navigator.geolocation.clearWatch(watchId);
       watchId = null;
       lastPosition = null;
+      lastDistancePosition = null;
+      lastRoutePosition = null;
+      lastGpsFixAt = 0;
+    }
+
+    function gpsDistanceMeters(firstPosition, secondPosition) {
+      const toRadians = value => value * Math.PI / 180;
+      const latitudeDelta = toRadians(secondPosition.latitude - firstPosition.latitude);
+      const longitudeDelta = toRadians(secondPosition.longitude - firstPosition.longitude);
+      const latitude1 = toRadians(firstPosition.latitude);
+      const latitude2 = toRadians(secondPosition.latitude);
+      const haversine = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(longitudeDelta / 2) ** 2;
+      return 6371000 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
     }
 
     function startLocationWatch() {
       if (!navigator.geolocation) {
-        $("#location-note").textContent = "이 브라우저에서 위치를 사용할 수 없어요. 시간은 계속 기록됩니다.";
+        $("#location-note").textContent = t("이 브라우저에서 위치를 사용할 수 없어요. 시간은 계속 기록됩니다.", "Location is unavailable in this browser. Time tracking will continue.");
         return;
       }
+      lastGpsFixAt = 0;
+      $("#location-note").textContent = t("GPS 신호를 찾는 중이에요…", "Waiting for GPS signal…");
       watchId = navigator.geolocation.watchPosition(position => {
         if (position.coords.accuracy > 50) {
-          $("#location-note").textContent = `GPS 신호를 찾는 중 · 정확도 ${Math.round(position.coords.accuracy)} m`;
+          $("#location-note").textContent = t(`GPS 신호를 찾는 중 · 정확도 ${Math.round(position.coords.accuracy)} m`, `Searching for GPS · accuracy ${Math.round(position.coords.accuracy)} m`);
           return;
         }
         const point = [position.coords.latitude, position.coords.longitude];
+        const currentPosition = { latitude: position.coords.latitude, longitude: position.coords.longitude };
         let meters = 0;
-        if (lastPosition) {
-          const toRadians = value => value * Math.PI / 180;
-          const latitudeDelta = toRadians(position.coords.latitude - lastPosition.latitude);
-          const longitudeDelta = toRadians(position.coords.longitude - lastPosition.longitude);
-          const latitude1 = toRadians(lastPosition.latitude);
-          const latitude2 = toRadians(position.coords.latitude);
-          const haversine = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(longitudeDelta / 2) ** 2;
-          meters = 6371000 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+        if (lastDistancePosition) {
+          meters = gpsDistanceMeters(lastDistancePosition, currentPosition);
           if (meters >= 2 && meters < 100) {
             distanceKm += meters / 1000;
-            routePoints.push(point);
-            routeLine.setLatLngs(routePoints);
+            lastDistancePosition = currentPosition;
+          } else if (meters >= 100) {
+            lastDistancePosition = currentPosition;
           }
+        } else {
+          lastDistancePosition = currentPosition;
         }
-        lastPosition = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+
+        let routeMeters = 0;
+        let routeChanged = false;
+        if (lastRoutePosition) {
+          routeMeters = gpsDistanceMeters(lastRoutePosition, currentPosition);
+          if (routeMeters >= 1.5 && routeMeters < 100) {
+            routeSegments[routeSegments.length - 1].push(point);
+            lastRoutePosition = currentPosition;
+            routeChanged = true;
+          } else if (routeMeters >= 100) {
+            routeSegments.push([point]);
+            lastRoutePosition = currentPosition;
+            routeChanged = true;
+          }
+        } else {
+          routeSegments.push([point]);
+          lastRoutePosition = currentPosition;
+          routeChanged = true;
+        }
+        lastPosition = currentPosition;
+        lastGpsFixAt = Date.now();
         $("#favorite-place").disabled = false;
         if (!routeMap && window.L) {
           routeMap = L.map("route-map", { zoomControl: true }).setView(point, 16);
@@ -879,22 +1107,25 @@
             maxZoom: 19,
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(routeMap);
-          routePoints = [point];
-          routeLine = L.polyline(routePoints, { color: "#f26545", weight: 5, lineCap: "round", lineJoin: "round" }).addTo(routeMap);
+          routeLine = L.polyline(routeSegments, { color: "#f26545", weight: 5, lineCap: "round", lineJoin: "round" }).addTo(routeMap);
           routeMarker = L.circleMarker(point, { radius: 7, color: "#20231f", weight: 3, fillColor: "#d7f36a", fillOpacity: 1 }).addTo(routeMap);
           $("#route-map-placeholder").hidden = true;
           setTimeout(() => routeMap.invalidateSize(), 0);
         } else if (routeMap) {
           routeMarker.setLatLng(point);
-          if (meters >= 2 && meters < 100) routeMap.panTo(point, { animate: false });
+          if (routeChanged) routeLine.setLatLngs(routeSegments);
+          if (routeMeters >= 1.5 && routeMeters < 100) routeMap.panTo(point, { animate: false });
         } else {
-          $("#route-map-placeholder").innerHTML = '지도를 불러올 수 없어요<span>인터넷 연결을 확인해 주세요</span>';
+          $("#route-map-placeholder").innerHTML = `${t("지도를 불러올 수 없어요", "Map unavailable")}<span>${t("인터넷 연결을 확인해 주세요", "Check your internet connection.")}</span>`;
         }
-        $("#location-note").textContent = `GPS 연결됨 · 정확도 ${Math.round(position.coords.accuracy)} m`;
+        $("#location-note").textContent = t(`GPS 연결됨 · 정확도 ${Math.round(position.coords.accuracy)} m`, `GPS connected · accuracy ${Math.round(position.coords.accuracy)} m`);
         recentDistanceSamples.push({ time: Date.now(), distance: distanceKm });
         updateRunDisplay();
       }, () => {
-        $("#location-note").textContent = "위치 권한을 확인할 수 없어요. 시간은 계속 기록됩니다.";
+        lastGpsFixAt = 0;
+        lastDistancePosition = null;
+        lastRoutePosition = null;
+        $("#location-note").textContent = t("GPS를 사용할 수 없어요. 위치 권한을 확인해 주세요.", "GPS unavailable. Check location permission.");
       }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 12000 });
     }
 
@@ -908,7 +1139,7 @@
       updateRunDisplay();
       $("#run-status").textContent = "RUN IN PROGRESS";
       $("#run-status").dataset.state = "live";
-      $("#start-run").textContent = "러닝 재개";
+      $("#start-run").textContent = t("러닝 재개", "Resume run");
       $("#pause-run").disabled = false;
       $("#finish-run").disabled = false;
       clearInterval(pauseTickId);
@@ -937,7 +1168,7 @@
       $(".run-modal").dataset.phase = "ready";
       $("#run-status").textContent = "READY WHEN YOU ARE";
       $("#run-status").dataset.state = "ready";
-      $("#start-run").textContent = "러닝 시작";
+      $("#start-run").textContent = t("러닝 시작", "Start run");
     }
 
     function prepareCountdownAudio() {
@@ -1009,7 +1240,7 @@
         runClock.classList.remove("countdown-number");
         runClock.textContent = formatDuration(elapsedSeconds);
       }
-      $("#run-status").textContent = index === 0 ? "러닝을 시작합니다" : `카운트다운 ${phrase}`;
+      $("#run-status").textContent = index === 0 ? t("러닝을 시작합니다", "Starting your run") : `${t("카운트다운", "Countdown")} ${phrase}`;
       $("#run-status").dataset.state = index === 0 ? "intro" : "countdown";
       const nextStep = () => {
         if (!isCountdownActive) return;
@@ -1022,7 +1253,7 @@
       }
 
       const utterance = new SpeechSynthesisUtterance(phrase);
-      utterance.lang = "ko-KR";
+      utterance.lang = isEnglish ? "en-US" : "ko-KR";
       utterance.rate = 0.95;
       utterance.onend = nextStep;
       utterance.onerror = nextStep;
@@ -1042,8 +1273,8 @@
       isCountdownActive = true;
       $(".run-modal").dataset.phase = "countdown";
       prepareCountdownAudio();
-      $("#start-run").textContent = "카운트다운 취소";
-      speakCountdownStep(["러닝을 시작합니다.", "3", "2", "1"], 0);
+      $("#start-run").textContent = t("카운트다운 취소", "Cancel countdown");
+      speakCountdownStep([t("러닝을 시작합니다.", "Starting your run."), "3", "2", "1"], 0);
     }
 
     function pauseRun() {
@@ -1064,17 +1295,21 @@
       $(".run-modal").dataset.phase = "paused";
       $("#run-status").textContent = "PAUSED · CATCH YOUR BREATH";
       $("#run-status").dataset.state = "paused";
-      $("#pause-run").textContent = "일시 정지됨";
+      $("#pause-run").textContent = t("일시 정지됨", "Paused");
       $("#pause-run").disabled = true;
-      $("#start-run").textContent = "러닝 재개";
+      $("#start-run").textContent = t("러닝 재개", "Resume run");
     }
 
     function finishRun() {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
         runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, photo: runPhotoDataUrl });
-        saveRuns();
-        showToast("러닝 기록을 저장했어요.");
+        if (!saveRuns()) {
+          runs.shift();
+          showToast(runPhotoDataUrl ? t("저장 공간이 부족해요. 사진을 제거하거나 공간을 확보한 뒤 다시 저장해 주세요.", "Storage is full. Remove the photo or free space, then try saving again.") : t("기기 저장소를 사용할 수 없어 기록을 저장하지 못했어요.", "Device storage is unavailable, so the run could not be saved."));
+          return;
+        }
+        showToast(t("러닝 기록을 저장했어요.", "Run saved on this device."));
       }
       clearInterval(timerId);
       stopLocationWatch();
@@ -1111,21 +1346,23 @@
       $("#pause-note").hidden = true;
       $(".run-modal").dataset.phase = "ready";
       selectRunTab("guide");
-      routePoints = [];
+      routeSegments = [];
+      lastRoutePosition = null;
+      lastDistancePosition = null;
       routeMap?.remove();
       routeMap = null;
       routeLine = null;
       routeMarker = null;
       $("#route-map-placeholder").hidden = false;
-      $("#route-map-placeholder").innerHTML = 'GPS 연결을 기다리고 있어요<span>러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다</span>';
+      $("#route-map-placeholder").innerHTML = `${t("GPS 연결을 기다리고 있어요", "Waiting for GPS") }<span>${t("러닝을 시작하면 현재 위치와 이동 경로가 표시됩니다", "Start to see your location and route.")}</span>`;
       updateRunDisplay();
       $("#run-status").textContent = "READY WHEN YOU ARE";
       $("#run-status").dataset.state = "ready";
-      $("#start-run").textContent = "러닝 시작";
-      $("#pause-run").textContent = "일시 정지";
+      $("#start-run").textContent = t("러닝 시작", "Start run");
+      $("#pause-run").textContent = t("일시 정지", "Pause");
       $("#pause-run").disabled = true;
       $("#finish-run").disabled = true;
-      $("#location-note").textContent = "시작을 누르면 위치 권한을 요청합니다.";
+      $("#location-note").textContent = t("시작을 누르면 위치 권한을 요청합니다.", "Start to request location access.");
       $("#run-dialog").close();
     }
 
@@ -1168,16 +1405,16 @@
         runPhotoDataUrl = await compressRunPhoto(file);
         $("#run-photo-image").src = runPhotoDataUrl;
         $("#run-photo-preview").hidden = false;
-        showToast("러닝 사진을 추가했어요.");
+        showToast(t("러닝 사진을 추가했어요.", "Run photo added."));
       } catch {
-        showToast("사진을 불러오지 못했어요.");
+        showToast(t("사진을 불러오지 못했어요.", "Could not load the photo."));
       }
       $("#run-photo-input").value = "";
     }
 
     function updateScreenLockButton() {
       $("#screen-lock").setAttribute("aria-pressed", String(isTouchLocked));
-      $("#screen-lock").querySelector("small").textContent = isTouchLocked ? "터치 잠김" : "화면 잠그기";
+      $("#screen-lock").querySelector("small").textContent = isTouchLocked ? t("터치 잠김", "Touch locked") : t("화면 잠그기", "Lock screen");
     }
 
     async function toggleScreenLock() {
@@ -1241,7 +1478,7 @@
 
     function saveFavoritePlace() {
       if (!lastPosition) {
-        showToast("GPS 위치를 받은 뒤 저장할 수 있어요.");
+        showToast(t("GPS 위치를 받은 뒤 저장할 수 있어요.", "Wait for a GPS fix before saving a favorite place."));
         return;
       }
       let favorites = [];
@@ -1253,22 +1490,24 @@
         if (routeMap && window.L) {
           L.circleMarker([lastPosition.latitude, lastPosition.longitude], { radius: 6, color: "#20231f", weight: 2, fillColor: "#f6b34b", fillOpacity: 1 }).addTo(routeMap).bindPopup("저장한 좋은 곳");
         }
-        showToast("현재 위치를 좋은 곳에 저장했어요.");
+        showToast(t("현재 위치를 좋은 곳에 저장했어요.", "Current location saved as a favorite place."));
       } catch {
-        showToast("위치를 저장하지 못했어요.");
+        showToast(t("위치를 저장하지 못했어요.", "Could not save this location."));
       }
     }
 
     async function shareRun() {
-      const shareText = `PACE 러닝 · ${distanceKm.toFixed(2)} km · ${formatDuration(elapsedSeconds)} · 페이스 ${formatPace(elapsedSeconds, distanceKm)} /km`;
+      const shareText = isEnglish
+        ? `PACE run · ${distanceKm.toFixed(2)} km · ${formatDuration(elapsedSeconds)} · pace ${formatPace(elapsedSeconds, distanceKm)} /km`
+        : `PACE 러닝 · ${distanceKm.toFixed(2)} km · ${formatDuration(elapsedSeconds)} · 페이스 ${formatPace(elapsedSeconds, distanceKm)} /km`;
       if (navigator.share) {
         try { await navigator.share({ title: "PACE 러닝 기록", text: shareText, url: location.href }); }
-        catch (error) { if (error.name !== "AbortError") showToast("공유를 열지 못했어요."); }
+        catch (error) { if (error.name !== "AbortError") showToast(t("공유를 열지 못했어요.", "Could not open sharing.")); }
         return;
       }
       try {
         await navigator.clipboard.writeText(shareText);
-        showToast("러닝 요약을 복사했어요.");
+        showToast(t("러닝 요약을 복사했어요.", "Run summary copied."));
       } catch {
         showToast(shareText);
       }
@@ -1350,8 +1589,9 @@
     });
 
     const now = new Date();
-    $("#header-date").textContent = now.toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
-    $("#today-date").textContent = now.toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+    const dateLocale = isEnglish ? "en-US" : "ko-KR";
+    $("#header-date").textContent = now.toLocaleDateString(dateLocale, { month: "long", day: "numeric" });
+    $("#today-date").textContent = now.toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric", weekday: "long" });
     renderDashboard();
     updateCadenceGuideDisplay();
     const savedTargetDistance = Number(localStorage.getItem("pace-target-distance-v1"));
@@ -1360,6 +1600,7 @@
     catch {}
     updateRunGoalDisplay();
     updateVoiceGuideControls();
+    applyEnglishPage();
   </script>
 </body>
 </html>
