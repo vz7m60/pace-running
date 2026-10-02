@@ -285,9 +285,9 @@
     .run-tool small { color: var(--muted); font-size: 9px; }
     .run-tool:disabled { opacity: .45; cursor: default; }
     .run-tool[aria-pressed="true"] { border-color: #91ae9d; background: #e8f0e9; }
-    .touch-lock-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 22px; background: #f3f1e8f2; color: var(--ink); backdrop-filter: blur(8px); }
+    .touch-lock-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; padding: 22px; background: transparent; color: var(--ink); pointer-events: auto; touch-action: none; }
     .touch-lock-overlay[hidden] { display: none; }
-    .touch-lock-content { display: grid; justify-items: center; gap: 10px; width: min(320px, 100%); text-align: center; }
+    .touch-lock-content { display: grid; justify-items: center; gap: 10px; width: min(320px, 100%); padding: 20px; border: 1px solid #ffffffc7; background: #f3f1e8ed; box-shadow: 0 12px 48px #10151024; text-align: center; }
     .touch-lock-symbol { color: #174f3c; font-size: 30px; }
     .touch-lock-content strong { font-size: 20px; }
     .touch-lock-content p { margin: 0 0 8px; color: var(--muted); font-size: 12px; line-height: 1.6; }
@@ -575,8 +575,8 @@
     <div class="touch-lock-overlay" id="touch-lock-overlay" hidden>
       <div class="touch-lock-content">
         <div class="touch-lock-symbol">⛶</div>
-        <strong>화면 잠김</strong>
-        <p>달리는 동안 실수로 눌리지 않도록 잠겼어요.</p>
+        <strong>화면 터치 잠김</strong>
+        <p>화면은 그대로 보이고 터치만 잠깁니다.</p>
         <button class="unlock-hold" id="unlock-screen" type="button">
           <span>3초 길게 눌러 해제</span>
           <i id="unlock-progress"></i>
@@ -701,7 +701,9 @@
       "비프 꺼짐": "Beep off",
       "음성 안내": "Voice updates",
       "목표 거리의 10%마다 페이스 안내": "Pace update every 10% of your goal",
-      "화면 잠그기": "Lock screen",
+      "화면 터치 잠그기": "Touch lock",
+      "화면 터치 잠김": "Touch lock on",
+      "화면은 그대로 보이고 터치만 잠깁니다.": "The screen stays visible while app touches are blocked.",
       "화면 잠금": "Touch lock",
       "터치 잠김": "Touch locked",
       "좋은 곳": "Favorite place",
@@ -1801,7 +1803,7 @@
 
     function updateScreenLockButton() {
       $("#screen-lock").setAttribute("aria-pressed", String(isTouchLocked));
-      $("#screen-lock").querySelector("small").textContent = isTouchLocked ? t("터치 잠김", "Touch locked") : t("화면 잠그기", "Lock screen");
+      $("#screen-lock").querySelector("small").textContent = isTouchLocked ? t("터치 잠김", "Touch locked") : t("화면 터치 잠그기", "Touch lock");
     }
 
     async function toggleScreenLock() {
