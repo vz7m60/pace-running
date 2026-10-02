@@ -66,6 +66,12 @@
     .run-button { display: inline-flex; width: fit-content; align-items: center; gap: 11px; margin-top: 25px; padding: 14px 19px; border: 0; background: var(--ink); color: white; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s, transform .2s; }
     .run-button:hover { background: #40453e; transform: translateY(-2px); }
     .play { color: var(--lime); font-size: 11px; }
+    .home-run-goal { display: flex; width: min(290px, 100%); align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 11px; border-top: 1px solid #455b5940; color: #455b59; font-size: 11px; }
+    .home-run-goal-control, .weekly-goal-control { display: inline-flex; align-items: center; gap: 5px; }
+    .home-run-goal-control input, .weekly-goal-control input { height: 32px; padding: 0 7px; border: 1px solid var(--line); border-radius: 2px; color: var(--ink); background: var(--white); font: 12px var(--mono); text-align: right; }
+    .home-run-goal-control input { width: 72px; }
+    .weekly-goal-control input { width: 66px; }
+    .home-run-goal-control input:focus-visible, .weekly-goal-control input:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
     .weekly { position: absolute; z-index: 2; top: 22px; right: 22px; padding: 10px 13px; background: var(--lime); font: 10px var(--mono); }
     .stats { display: grid; grid-template-columns: repeat(3, 1fr); margin: 22px 0 39px; background: var(--white); }
     .stat { padding: 20px 24px; border-right: 1px solid var(--line); }
@@ -84,8 +90,9 @@
     .activity-meta { margin-top: 4px; color: var(--muted); font: 10px var(--mono); }
     .activity-distance { font: 14px var(--mono); }
     .goal { padding: 20px 21px 22px; background: var(--white); }
-    .goal-top { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; }
-    .goal-top span:last-child { font: 11px var(--mono); color: var(--muted); }
+    .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; }
+    .goal-top label { color: var(--ink); }
+    .weekly-goal-control { color: var(--muted); font: 11px var(--mono); }
     .goal-number { margin: 21px 0 9px; font: 29px var(--mono); }
     .goal-number span { font-size: 12px; color: var(--muted); }
     .progress { height: 5px; background: #e7e8df; }
@@ -269,9 +276,9 @@
       .main { padding: 30px 20px 48px; }
       .welcome { margin-bottom: 22px; }
       .date { max-width: 105px; text-align: right; line-height: 1.5; }
-      .hero { grid-template-columns: 1fr; min-height: 390px; }
-      .hero-copy { min-height: 235px; padding: 27px 24px; }
-      .hero-art { position: absolute; inset: 210px 0 0; min-height: 180px; }
+      .hero { grid-template-columns: 1fr; min-height: 430px; }
+      .hero-copy { min-height: 290px; padding: 27px 24px; }
+      .hero-art { position: absolute; inset: 265px 0 0; min-height: 165px; }
       .hero-art::after { background: linear-gradient(180deg, #b9dce8 0%, rgba(185,220,232,.06) 55%); }
       .weekly { top: 14px; right: 14px; }
       .run-button { margin-top: 18px; }
@@ -352,9 +359,13 @@
               <h2>오늘의 한 걸음이<br>내일의 페이스가 돼요.</h2>
               <p>가볍게 시작해도 충분한 러닝하기 좋은 날</p>
               <button class="run-button" id="open-run"><span class="play">▶</span> 러닝 시작하기</button>
+              <div class="home-run-goal">
+                <label for="home-run-goal">이번 러닝 목표</label>
+                <div class="home-run-goal-control"><input id="home-run-goal" type="number" min="1" max="42" step="0.5" value="5" inputmode="decimal" aria-label="러닝 목표 거리, 킬로미터"><span>km</span></div>
+              </div>
             </div>
             <div class="hero-art" role="img" aria-label="야외에서 달리는 러너"></div>
-            <div class="weekly">WEEKLY GOAL&nbsp; 12 KM</div>
+            <div class="weekly"><span id="weekly-goal-badge-label">WEEKLY GOAL</span>&nbsp; <span id="weekly-goal-badge-value">12 KM</span></div>
           </section>
           <section class="stats" aria-label="누적 통계">
             <div class="stat"><div class="stat-label">이번 주 거리</div><div class="stat-value"><span id="stat-distance">0.0</span><span class="stat-unit">KM</span></div></div>
@@ -369,8 +380,8 @@
             <section>
               <div class="section-head"><h3>주간 목표</h3><span class="eyebrow">THIS WEEK</span></div>
               <div class="goal">
-                <div class="goal-top"><span>목표 거리</span><span>12 KM</span></div>
-                <div class="goal-number"><span id="goal-distance">0.0</span><span> / 12.0 km</span></div>
+                <div class="goal-top"><label for="weekly-goal">주간 목표 거리</label><div class="weekly-goal-control"><input id="weekly-goal" type="number" min="1" max="200" step="0.5" value="12" inputmode="decimal" aria-label="주간 목표 거리, 킬로미터"><span>km</span></div></div>
+                <div class="goal-number"><span id="goal-distance">0.0</span><span> / <span id="weekly-goal-display">12.0</span> km</span></div>
                 <div class="progress"><div class="progress-fill" id="goal-progress"></div></div>
                 <div class="goal-note" id="goal-note">첫 러닝을 시작해볼까요?</div>
               </div>
@@ -514,6 +525,8 @@
       "야외에서 달리는 러너": "Runner outdoors",
       "야외 러닝 준비 화면": "Outdoor run ready screen",
       "목표 거리, 킬로미터": "Distance goal, kilometers",
+      "러닝 목표 거리, 킬로미터": "Run distance goal, kilometers",
+      "주간 목표 거리, 킬로미터": "Weekly distance goal, kilometers",
       "목표 케이던스, 분당 걸음 수": "Target cadence, steps per minute",
       "러닝 사진": "Run photo",
       "닫기": "Close",
@@ -530,6 +543,8 @@
       "대시보드": "Dashboard",
       "러닝 기록": "Run history",
       "이번 주 계획": "Weekly plan",
+      "이번 러닝 목표": "Run distance goal",
+      "주간 목표 거리": "Weekly distance goal",
       "안녕하세요, 러너님.": "Hello, runner.",
       "오늘의 한 걸음이": "Every step today",
       "내일의 페이스가 돼요.": "sets tomorrow's pace.",
@@ -693,6 +708,7 @@
     let isMetronomeEnabled = true;
     let metronomeTimerId = null;
     let targetDistanceKm = 5;
+    let weeklyGoalKm = 12;
     let runPhotoDataUrl = null;
     let wakeLockSentinel = null;
     let isTouchLocked = false;
@@ -735,6 +751,7 @@
       targetDistanceKm = Number($("#target-distance").value);
       const remainingDistance = Math.max(0, targetDistanceKm - distanceKm);
       $("#target-distance-value").textContent = `${targetDistanceKm.toFixed(1)} km`;
+      $("#home-run-goal").value = targetDistanceKm.toFixed(1);
       $("#run-target-label").textContent = `${t("목표", "Goal")} ${targetDistanceKm.toFixed(1)} km`;
       $("#run-remaining").textContent = remainingDistance > 0 ? t(`${remainingDistance.toFixed(1)} km 남음`, `${remainingDistance.toFixed(1)} km remaining`) : t("목표 달성", "Goal reached");
       $("#run-target-fill").style.width = `${Math.min(100, distanceKm / targetDistanceKm * 100)}%`;
@@ -829,8 +846,12 @@
       $("#stat-pace").textContent = formatPace(totalDuration, weekDistance);
       $("#week-total").textContent = `${weekDistance.toFixed(1)} KM`;
       $("#goal-distance").textContent = weekDistance.toFixed(1);
-      $("#goal-progress").style.width = `${Math.min(100, weekDistance / 12 * 100)}%`;
-      $("#goal-note").textContent = weekDistance >= 12 ? t("이번 주 목표를 달성했어요!", "Weekly goal reached!") : isEnglish ? `${(12 - weekDistance).toFixed(1)} km to goal` : `목표까지 ${(12 - weekDistance).toFixed(1)} km 남았어요`;
+      $("#weekly-goal").value = weeklyGoalKm.toFixed(1);
+      $("#weekly-goal-display").textContent = weeklyGoalKm.toFixed(1);
+      $("#weekly-goal-badge-label").textContent = t("주간 목표", "Weekly goal").toUpperCase();
+      $("#weekly-goal-badge-value").textContent = `${weeklyGoalKm.toFixed(1)} KM`;
+      $("#goal-progress").style.width = `${Math.min(100, weekDistance / weeklyGoalKm * 100)}%`;
+      $("#goal-note").textContent = weekDistance >= weeklyGoalKm ? t("이번 주 목표를 달성했어요!", "Weekly goal reached!") : isEnglish ? `${(weeklyGoalKm - weekDistance).toFixed(1)} km to goal` : `목표까지 ${(weeklyGoalKm - weekDistance).toFixed(1)} km 남았어요`;
       $("#recent-list").innerHTML = runs.length ? runs.slice(0, 3).map(makeActivityRow).join("") : `<div class="empty">${t("아직 기록이 없어요. 첫 러닝을 시작해보세요.", "No runs yet. Start your first run.")}</div>`;
       $("#all-records").innerHTML = runs.length ? runs.map(makeActivityRow).join("") : `<div class="empty">${t("첫 러닝을 마치면 이곳에 기록이 쌓여요.", "Your first run will appear here.")}</div>`;
       const days = Array(7).fill(0);
@@ -1579,6 +1600,29 @@
       try { localStorage.setItem("pace-target-distance-v1", String(targetDistanceKm)); }
       catch {}
     });
+    $("#home-run-goal").addEventListener("change", event => {
+      const enteredGoal = Number(event.currentTarget.value);
+      if (!Number.isFinite(enteredGoal) || enteredGoal < 1 || enteredGoal > 42) {
+        event.currentTarget.value = targetDistanceKm.toFixed(1);
+        return;
+      }
+      const nextGoal = Math.round(enteredGoal * 2) / 2;
+      $("#target-distance").value = String(nextGoal);
+      updateRunGoalDisplay();
+      try { localStorage.setItem("pace-target-distance-v1", String(targetDistanceKm)); }
+      catch {}
+    });
+    $("#weekly-goal").addEventListener("change", event => {
+      const enteredGoal = Number(event.currentTarget.value);
+      if (!Number.isFinite(enteredGoal) || enteredGoal < 1 || enteredGoal > 200) {
+        event.currentTarget.value = weeklyGoalKm.toFixed(1);
+        return;
+      }
+      weeklyGoalKm = Math.round(enteredGoal * 2) / 2;
+      try { localStorage.setItem("pace-weekly-goal-v1", String(weeklyGoalKm)); }
+      catch {}
+      renderDashboard();
+    });
     $("#cadence-target").addEventListener("change", () => {
       if (isRunning && isMetronomeEnabled) startCadenceMetronome();
     });
@@ -1606,10 +1650,12 @@
     const dateLocale = isEnglish ? "en-US" : "ko-KR";
     $("#header-date").textContent = now.toLocaleDateString(dateLocale, { month: "long", day: "numeric" });
     $("#today-date").textContent = now.toLocaleDateString(dateLocale, { year: "numeric", month: "long", day: "numeric", weekday: "long" });
-    renderDashboard();
-    updateCadenceGuideDisplay();
     const savedTargetDistance = Number(localStorage.getItem("pace-target-distance-v1"));
     if (savedTargetDistance >= 1 && savedTargetDistance <= 42) $("#target-distance").value = String(savedTargetDistance);
+    const savedWeeklyGoal = Number(localStorage.getItem("pace-weekly-goal-v1"));
+    if (savedWeeklyGoal >= 1 && savedWeeklyGoal <= 200) weeklyGoalKm = savedWeeklyGoal;
+    renderDashboard();
+    updateCadenceGuideDisplay();
     try { isVoiceGuidanceEnabled = localStorage.getItem("pace-voice-guidance-v1") !== "false"; }
     catch {}
     updateRunGoalDisplay();
