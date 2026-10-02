@@ -89,6 +89,25 @@
     .activity-name { font-size: 12px; font-weight: 700; }
     .activity-meta { margin-top: 4px; color: var(--muted); font: 10px var(--mono); }
     .activity-distance { font: 14px var(--mono); }
+    .activity-record + .activity-record { border-top: 1px solid var(--line); }
+    .activity-record .activity-row { border-top: 0; }
+    .run-analysis { margin: 0 0 12px 56px; border-top: 1px solid var(--line); }
+    .run-analysis summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; color: #174f3c; font-size: 10px; font-weight: 700; cursor: pointer; list-style: none; }
+    .run-analysis summary::-webkit-details-marker { display: none; }
+    .run-analysis summary::after { content: "+"; color: var(--orange); font: 16px var(--mono); }
+    .run-analysis[open] summary::after { content: "−"; }
+    .analysis-open-hint { margin-left: auto; color: var(--muted); font-size: 9px; font-weight: 400; }
+    .run-analysis-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px 14px; }
+    .run-analysis-stat { display: grid; gap: 5px; padding: 9px 0; border-top: 1px solid var(--line); }
+    .run-analysis-stat span, .run-analysis-stat small { color: var(--muted); font-size: 9px; }
+    .run-analysis-stat strong { color: var(--ink); font: 700 15px var(--mono); }
+    .run-analysis-note { margin: 10px 0; color: #455b59; font-size: 10px; line-height: 1.6; }
+    .run-analysis-progress { height: 4px; margin-top: 2px; overflow: hidden; background: #e7e8df; }
+    .run-analysis-progress span { display: block; height: 100%; background: var(--orange); }
+    .run-splits { margin-top: 12px; }
+    .run-splits h4 { margin: 0 0 6px; color: var(--muted); font-size: 9px; font-weight: 700; }
+    .run-split-row { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--line); font: 10px var(--mono); }
+    .run-split-empty { margin: 0; padding: 8px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; line-height: 1.5; }
     .goal { padding: 20px 21px 22px; background: var(--white); }
     .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; }
     .goal-top label { color: var(--ink); }
@@ -322,6 +341,8 @@
       .modal-actions button { min-height: 42px; padding: 0 5px; font-size: 11px; }
       .plan-grid { grid-template-columns: 1fr; }
       .records-list { padding: 0 16px; }
+      .run-analysis { margin-left: 0; }
+      .run-analysis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       footer { margin-top: 35px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
@@ -709,6 +730,7 @@
     let metronomeTimerId = null;
     let targetDistanceKm = 5;
     let weeklyGoalKm = 12;
+    let runSplits = [];
     let runPhotoDataUrl = null;
     let wakeLockSentinel = null;
     let isTouchLocked = false;
@@ -830,11 +852,54 @@
       return runs.filter(run => new Date(run.date) >= monday);
     }
 
+    function makeRunAnalysis(run) {
+      const distance = Number(run.distance) || 0;
+      const duration = Number(run.duration) || 0;
+      const goalDistance = Number(run.goalDistance) || 0;
+      const goalPercent = goalDistance > 0 ? Math.round(distance / goalDistance * 100) : null;
+      const stepCount = Number(run.steps) || 0;
+      const stepLength = distance > 0 && stepCount > 0 ? (distance * 1000 / stepCount).toFixed(2) : null;
+      const comparisonRuns = runs.filter(other => other !== run && other.distance > 0 && other.duration > 0);
+      const comparisonDistance = comparisonRuns.reduce((sum, other) => sum + other.distance, 0);
+      const comparisonDuration = comparisonRuns.reduce((sum, other) => sum + other.duration, 0);
+      let comparisonText = t("비교할 다른 러닝 기록이 아직 없어요.", "No other saved runs to compare yet.");
+      if (distance > 0 && comparisonDistance > 0) {
+        const paceDifference = Math.round(duration / distance - comparisonDuration / comparisonDistance);
+        comparisonText = Math.abs(paceDifference) < 3
+          ? t("다른 러닝 기록의 평균 페이스와 비슷해요.", "This is close to your average pace across other runs.")
+          : `${formatPace(Math.abs(paceDifference), 1)} /km ${paceDifference < 0 ? t("더 빨라요", "faster") : t("더 느려요", "slower")} ${t("(다른 러닝 기록 평균 대비)", "than your other-run average")}`;
+      }
+
+      const splits = Array.isArray(run.splits) ? run.splits.filter(split => Number.isFinite(split.kilometer) && Number.isFinite(split.elapsedSeconds)) : [];
+      let previousSplitTime = 0;
+      const splitRows = splits.map(split => {
+        const splitDuration = Math.max(0, split.elapsedSeconds - previousSplitTime);
+        previousSplitTime = split.elapsedSeconds;
+        return `<div class="run-split-row"><span>${split.kilometer} km</span><strong>${formatPace(splitDuration, 1)} /km</strong></div>`;
+      });
+      if (splits.length) {
+        const lastSplit = splits[splits.length - 1];
+        const partialDistance = distance - lastSplit.kilometer;
+        const partialDuration = duration - lastSplit.elapsedSeconds;
+        if (partialDistance >= 0.1 && partialDuration > 0) {
+          splitRows.push(`<div class="run-split-row"><span>+${partialDistance.toFixed(1)} km</span><strong>${formatPace(partialDuration, partialDistance)} /km</strong></div>`);
+        }
+      }
+      const goalDetails = goalPercent === null
+        ? t("목표 거리 정보가 저장되지 않은 기록입니다.", "This run has no saved distance goal.")
+        : `${goalPercent}% · ${distance.toFixed(2)} / ${goalDistance.toFixed(1)} km ${goalPercent >= 100 ? t("달성", "completed") : t("진행", "complete")}`;
+      const splitDetails = splitRows.length
+        ? splitRows.join("")
+        : `<p class="run-split-empty">${t("이 기록에는 GPS 구간 데이터가 없어요. 1km 미만 기록 또는 이전 기록일 수 있습니다.", "No GPS split data for this run. It may be under 1 km or an older record.")}</p>`;
+
+      return `<details class="run-analysis"><summary><span>${t("러닝 결과 분석", "Run analysis")}</span><span class="analysis-open-hint">${t("펼쳐 보기", "View details")}</span></summary><div class="run-analysis-body"><div class="run-analysis-grid"><div class="run-analysis-stat"><span>${t("평균 페이스", "Avg pace")}</span><strong>${formatPace(duration, distance)} /km</strong></div><div class="run-analysis-stat"><span>${t("러닝 시간", "Run time")}</span><strong>${formatDuration(duration)}</strong></div><div class="run-analysis-stat"><span>${t("목표 달성률", "Goal completion")}</span><strong>${goalPercent === null ? "--" : `${goalPercent}%`}</strong><div class="run-analysis-progress"><span style="width:${goalPercent === null ? 0 : Math.min(100, goalPercent)}%"></span></div></div><div class="run-analysis-stat"><span>${t("총 걸음 수", "Total steps")}</span><strong>${stepCount ? stepCount.toLocaleString(isEnglish ? "en-US" : "ko-KR") : "--"}</strong></div><div class="run-analysis-stat"><span>${t("평균 보폭 추정", "Est. step length")}</span><strong>${stepLength ? `${stepLength} m` : "--"}</strong><small>${t("GPS 거리 ÷ 걸음 수", "GPS distance / steps")}</small></div><div class="run-analysis-stat"><span>${t("목표 거리", "Distance goal")}</span><strong>${goalDistance > 0 ? `${goalDistance.toFixed(1)} km` : "--"}</strong></div></div><p class="run-analysis-note">${goalDetails}<br>${comparisonText}</p><div class="run-splits"><h4>${t("GPS 1km 구간 페이스", "GPS 1 km splits")}</h4>${splitDetails}</div></div></details>`;
+    }
+
     function makeActivityRow(run) {
       const date = new Date(run.date);
       const day = `${dayNames[date.getDay()]}, ${date.toLocaleDateString(isEnglish ? "en-US" : "ko-KR", { month: "long", day: "numeric" })}`;
       const symbol = run.photo ? `<img src="${run.photo}" alt="러닝 사진">` : "↗";
-      return `<div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">${t("야외 러닝", "Outdoor run")}</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>`;
+      return `<article class="activity-record"><div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">${t("야외 러닝", "Outdoor run")}</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>${makeRunAnalysis(run)}</article>`;
     }
 
     function renderDashboard() {
@@ -1107,6 +1172,9 @@
           meters = gpsDistanceMeters(lastDistancePosition, currentPosition);
           if (meters >= 2 && meters < 100) {
             distanceKm += meters / 1000;
+            while (runSplits.length < Math.floor(distanceKm)) {
+              runSplits.push({ kilometer: runSplits.length + 1, elapsedSeconds });
+            }
             lastDistancePosition = currentPosition;
           } else if (meters >= 100) {
             lastDistancePosition = currentPosition;
@@ -1338,7 +1406,7 @@
     function finishRun() {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
       if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
-        runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, photo: runPhotoDataUrl });
+        runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, splits: runSplits.map(split => ({ ...split })), photo: runPhotoDataUrl });
         if (!saveRuns()) {
           runs.shift();
           showToast(runPhotoDataUrl ? t("저장 공간이 부족해요. 사진을 제거하거나 공간을 확보한 뒤 다시 저장해 주세요.", "Storage is full. Remove the photo or free space, then try saving again.") : t("기기 저장소를 사용할 수 없어 기록을 저장하지 못했어요.", "Device storage is unavailable, so the run could not be saved."));
@@ -1369,6 +1437,7 @@
       hasStartedRun = false;
       elapsedSeconds = 0;
       distanceKm = 0;
+      runSplits = [];
       motionAvailable = false;
       totalStepCount = 0;
       recentStepPeaks = [];
