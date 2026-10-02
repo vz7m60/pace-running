@@ -781,6 +781,20 @@
       }
     }
 
+    function updateGpsFreshness(now = Date.now()) {
+      if (!isRunning || !navigator.geolocation) return;
+      if (!lastGpsFixAt) {
+        if (elapsedSeconds >= 12) $("#location-note").textContent = "GPS 신호를 찾지 못했어요. 위치 권한과 네트워크를 확인해 주세요.";
+        return;
+      }
+      const fixAgeSeconds = Math.floor((now - lastGpsFixAt) / 1000);
+      if (fixAgeSeconds >= 15) {
+        lastDistancePosition = null;
+        lastRoutePosition = null;
+        $("#location-note").textContent = `GPS 신호가 끊겼어요 · 마지막 위치 ${fixAgeSeconds}초 전`;
+      }
+    }
+
     function selectRunTab(tabName) {
       $$(".run-tab").forEach(button => {
         const selected = button.dataset.runTab === tabName;
