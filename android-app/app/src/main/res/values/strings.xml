@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PACE Running</string>
+    <string name="choose_photo">Take or choose a run photo</string>
+    <string name="share_run">Share PACE run</string>
+    <string name="location_permission">PACE uses your location to record running distance and route.</string>
+    <string name="cannot_open_link">No app can open this link.</string>
+    <string name="cannot_open_camera">Could not open the camera or photo picker.</string>
+</resources>
