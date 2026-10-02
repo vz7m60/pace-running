@@ -2,7 +2,7 @@
 
 ## APK 받기
 
-1. [Android Debug APK 빌드 #2](https://github.com/vz7m60/pace-running/actions/runs/36966810738)을 엽니다.
+1. [Android Debug APK 빌드 #4](https://github.com/vz7m60/pace-running/actions/runs/36970178714)을 엽니다.
 2. GitHub 계정에 로그인하고 실행 결과가 `Success`인지 확인합니다.
 3. 페이지 아래 **Artifacts**에서 `PACE-Android-debug`를 내려받습니다. 이 파일은 ZIP입니다.
 4. 휴대폰의 **내 파일** 앱에서 ZIP을 풀고 `app-debug.apk`를 찾습니다.
