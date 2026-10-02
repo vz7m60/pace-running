@@ -104,6 +104,35 @@
     .run-analysis-note { margin: 10px 0; color: #455b59; font-size: 10px; line-height: 1.6; }
     .run-analysis-progress { height: 4px; margin-top: 2px; overflow: hidden; background: #e7e8df; }
     .run-analysis-progress span { display: block; height: 100%; background: var(--orange); }
+    .run-result-hero { display: flex; justify-content: space-between; align-items: end; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .run-result-distance { color: #174f3c; font: 800 28px var(--mono); }
+    .run-result-distance span { color: var(--muted); font: 11px var(--sans); }
+    .run-result-time { color: var(--ink); font: 700 20px var(--mono); }
+    .run-result-date { margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .run-detail-section { margin-top: 14px; }
+    .run-detail-section h4 { margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 700; }
+    .run-health-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 14px; }
+    .run-health-stat { display: grid; gap: 5px; min-width: 0; padding: 10px 0; border-top: 1px solid var(--line); }
+    .run-health-stat span, .run-health-stat small { color: var(--muted); font-size: 9px; }
+    .run-health-stat strong { color: var(--ink); font: 700 17px var(--mono); }
+    .run-result-map { height: 210px; overflow: hidden; background: #e5eee7; }
+    .run-result-map-empty { display: grid; min-height: 72px; place-items: center; border-top: 1px solid var(--line); color: var(--muted); font-size: 9px; text-align: center; }
+    .run-health-note { margin: 7px 0; color: var(--muted); font-size: 9px; line-height: 1.5; }
+    .run-health-compare { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 7px 12px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); font-size: 9px; }
+    .run-health-compare span { color: var(--muted); }
+    .run-health-compare strong { font: 700 10px var(--mono); text-align: right; }
+    .run-health-zones { display: grid; gap: 7px; }
+    .run-health-zone { display: grid; grid-template-columns: minmax(105px, 1.2fr) minmax(40px, 1fr) auto; gap: 8px; align-items: center; color: var(--muted); font-size: 9px; }
+    .run-health-zone-track { height: 4px; background: #e7e8df; }
+    .run-health-zone-track span { display: block; height: 100%; background: var(--orange); }
+    .run-health-zone strong { color: var(--ink); font: 10px var(--mono); }
+    .health-data-editor { margin-top: 14px; border-top: 1px solid var(--line); }
+    .health-data-editor summary { padding: 10px 0; color: #174f3c; font-size: 10px; font-weight: 700; cursor: pointer; }
+    .health-data-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; }
+    .health-data-field { display: grid; gap: 4px; min-width: 0; color: var(--muted); font-size: 9px; }
+    .health-data-field input { width: 100%; min-width: 0; height: 34px; padding: 0 8px; border: 1px solid var(--line); border-radius: 2px; color: var(--ink); background: var(--white); font: 12px var(--mono); }
+    .health-data-field input:focus-visible { outline: 2px solid var(--orange); outline-offset: 1px; }
+    .health-data-save { min-height: 36px; margin-top: 10px; padding: 0 12px; border: 0; background: var(--ink); color: white; font-size: 10px; font-weight: 700; cursor: pointer; }
     .run-splits { margin-top: 12px; }
     .run-splits h4 { margin: 0 0 6px; color: var(--muted); font-size: 9px; font-weight: 700; }
     .run-split-row { display: flex; justify-content: space-between; padding: 6px 0; border-top: 1px solid var(--line); font: 10px var(--mono); }
@@ -343,6 +372,7 @@
       .records-list { padding: 0 16px; }
       .run-analysis { margin-left: 0; }
       .run-analysis-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .run-result-map { height: 180px; }
       footer { margin-top: 35px; }
     }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
@@ -522,7 +552,7 @@
   <dialog class="safety-dialog" id="safety-dialog" aria-labelledby="safety-title">
     <div class="safety-content">
       <div class="safety-heading"><h2 id="safety-title">데이터와 안전 안내</h2><button class="close-button" id="close-safety-info" type="button" aria-label="안내 닫기">×</button></div>
-      <section><h3>어디에 저장되나요?</h3><p>러닝 기록, 사진, 목표 거리와 저장한 좋은 곳의 GPS 좌표는 이 기기의 브라우저 저장소에만 보관됩니다. 계정 서버로 업로드하거나 기기 사이에 동기화하지 않으며, 앱 자체에서 별도로 암호화하지 않습니다. 브라우저 데이터를 지우면 함께 삭제될 수 있어요.</p></section>
+      <section><h3>어디에 저장되나요?</h3><p>러닝 기록, 사진, 목표 거리, 러닝 경로의 GPS 좌표와 저장한 좋은 곳은 이 기기의 브라우저 저장소에만 보관됩니다. 삼성헬스 보완 수치도 직접 입력하면 이 기기에만 저장됩니다. 계정 서버로 업로드하거나 기기 사이에 동기화하지 않으며, 앱 자체에서 별도로 암호화하지 않습니다. 브라우저 데이터를 지우면 함께 삭제될 수 있어요.</p></section>
       <section><h3>공유하면 무엇이 전달되나요?</h3><p>공유 기능은 거리·시간·페이스 요약과 앱 주소만 보냅니다. 사진, 경로 좌표, 좋은 곳은 자동으로 첨부하지 않습니다. 이 앱과 저장소는 공개 상태라 링크를 아는 누구나 앱과 코드를 볼 수 있지만, 다른 사람 기기에 저장된 러닝 기록을 볼 수는 없습니다.</p></section>
       <section><h3>비밀번호와 개인정보</h3><p>앱 자체 로그인이나 비밀번호 보호는 없습니다. 휴대폰의 강한 화면 잠금 비밀번호/생체 잠금을 사용하고, 잠금 해제된 기기나 브라우저 프로필을 다른 사람과 공유하지 마세요. 지도는 OpenStreetMap에서 불러오며, 지도 타일 요청으로 대략적인 지도 영역과 접속 IP가 해당 서비스에 전달될 수 있습니다.</p></section>
       <section><h3>러닝 중 안전</h3><p>휴대폰은 손에 들기보다 허리 벨트 등에 몸에 밀착해 고정하세요. 주변을 계속 살피고, 도로를 건널 때는 화면을 보지 마세요. 음성 안내를 켜고, 필요하면 화면 잠금을 사용하세요. 화면 잠금은 앱 터치만 막으며 휴대폰의 OS 잠금 비밀번호를 대신하지 않습니다.</p></section>
@@ -645,7 +675,8 @@
       "러닝 중 안전": "Run safely",
       "확인": "Got it",
       "안내 닫기": "Close information",
-      "러닝 기록, 사진, 목표 거리와 저장한 좋은 곳의 GPS 좌표는 ": "Run records, photos, distance goals, and saved GPS places are ",
+      "러닝 기록, 사진, 목표 거리, 러닝 경로의 GPS 좌표와 저장한 좋은 곳은 ": "Run records, photos, distance goals, GPS routes, and saved places are ",
+      "삼성헬스 보완 수치도 직접 입력하면 이 기기에만 저장됩니다.": "Samsung Health values you enter manually are also stored only on this device.",
       "이 기기의 브라우저 저장소에만 보관됩니다.": "stored only in this device's browser storage.",
       "앱 자체에서 별도로 암호화하지 않습니다.": "the app does not add its own encryption.",
       "계정 서버로 업로드하거나 기기 사이에 동기화하지 않으며, ": "It is not uploaded to an account server or synced between devices, and ",
@@ -852,6 +883,18 @@
       return runs.filter(run => new Date(run.date) >= monday);
     }
 
+    function readOptionalNumber(value) {
+      if (value === undefined || value === null || value === "") return null;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : null;
+    }
+
+    function formatShortDuration(seconds) {
+      const wholeSeconds = Math.max(0, Math.floor(seconds));
+      const totalMinutes = Math.floor(wholeSeconds / 60);
+      return `${String(totalMinutes).padStart(2, "0")}:${String(wholeSeconds % 60).padStart(2, "0")}`;
+    }
+
     function makeRunAnalysis(run) {
       const distance = Number(run.distance) || 0;
       const duration = Number(run.duration) || 0;
@@ -859,47 +902,186 @@
       const goalPercent = goalDistance > 0 ? Math.round(distance / goalDistance * 100) : null;
       const stepCount = Number(run.steps) || 0;
       const stepLength = distance > 0 && stepCount > 0 ? (distance * 1000 / stepCount).toFixed(2) : null;
-      const comparisonRuns = runs.filter(other => other !== run && other.distance > 0 && other.duration > 0);
-      const comparisonDistance = comparisonRuns.reduce((sum, other) => sum + other.distance, 0);
-      const comparisonDuration = comparisonRuns.reduce((sum, other) => sum + other.duration, 0);
-      let comparisonText = t("비교할 다른 러닝 기록이 아직 없어요.", "No other saved runs to compare yet.");
-      if (distance > 0 && comparisonDistance > 0) {
-        const paceDifference = Math.round(duration / distance - comparisonDuration / comparisonDistance);
-        comparisonText = Math.abs(paceDifference) < 3
-          ? t("다른 러닝 기록의 평균 페이스와 비슷해요.", "This is close to your average pace across other runs.")
-          : `${formatPace(Math.abs(paceDifference), 1)} /km ${paceDifference < 0 ? t("더 빨라요", "faster") : t("더 느려요", "slower")} ${t("(다른 러닝 기록 평균 대비)", "than your other-run average")}`;
+      const health = run.healthData || {};
+      const healthDistance = readOptionalNumber(health.distanceKm);
+      const healthDuration = readOptionalNumber(health.durationSeconds);
+      const healthSpeed = readOptionalNumber(health.averageSpeedKmh) ?? (healthDistance && healthDuration ? healthDistance * 3600 / healthDuration : null);
+      const healthSteps = readOptionalNumber(health.steps);
+      const averageHeartRate = readOptionalNumber(health.averageHeartRateBpm);
+      const healthCalories = readOptionalNumber(health.caloriesKcal);
+      const elevationGain = readOptionalNumber(health.elevationGainM);
+      const vo2Max = readOptionalNumber(health.vo2Max);
+      const sweatLoss = readOptionalNumber(health.sweatLossMl);
+      const paceSpeed = duration > 0 ? distance * 3600 / duration : 0;
+      const calories = healthCalories ?? Math.round(distance * 62);
+      const zones = Array.isArray(health.zoneMinutes) ? health.zoneMinutes.map(readOptionalNumber).slice(0, 5) : [];
+      const zoneNames = [t("저강도 운동", "Low intensity"), t("체중 조절 운동", "Weight control"), t("유산소", "Aerobic"), t("무산소 운동", "Anaerobic"), t("최대", "Maximum")];
+      const zoneRanges = Array.isArray(health.zoneRanges) ? health.zoneRanges.slice(0, 5).map(range => typeof range === "string" && /^\d{1,3}-\d{1,3}$/.test(range) ? range.replace("-", "–") : "") : [];
+      const completeZones = zones.length === 5 && zones.every(value => value !== null);
+      const totalZoneMinutes = completeZones ? zones.reduce((sum, value) => sum + value, 0) : 0;
+      const route = Array.isArray(run.route) ? run.route.filter(segment => Array.isArray(segment) && segment.every(point => Array.isArray(point) && point.length === 2 && point.every(Number.isFinite))) : [];
+      const routePointCount = route.reduce((sum, segment) => sum + segment.length, 0);
+      const routeMarkup = routePointCount
+        ? `<div class="run-result-map" data-route="${JSON.stringify(route)}" aria-label="${t("저장된 러닝 경로", "Saved running route")}"></div>`
+        : `<div class="run-result-map-empty">${t("저장된 GPS 경로가 없어요. 이전 기록이거나 위치 권한이 꺼져 있었을 수 있습니다.", "No saved GPS route. This may be an older run or location access may have been off.")}</div>`;
+      const comparisonRows = [];
+      if (healthDistance !== null) {
+        const differenceMeters = Math.round((distance - healthDistance) * 1000);
+        comparisonRows.push(`<div class="run-health-compare"><span>${t("거리", "Distance")}</span><strong>PACE ${distance.toFixed(2)} km</strong><strong>Samsung ${healthDistance.toFixed(2)} km · ${differenceMeters > 0 ? "+" : ""}${differenceMeters} m</strong></div>`);
       }
-
-      const splits = Array.isArray(run.splits) ? run.splits.filter(split => Number.isFinite(split.kilometer) && Number.isFinite(split.elapsedSeconds)) : [];
+      if (healthDuration !== null) {
+        const differenceSeconds = Math.round(duration - healthDuration);
+        comparisonRows.push(`<div class="run-health-compare"><span>${t("운동 시간", "Exercise time")}</span><strong>PACE ${formatShortDuration(duration)}</strong><strong>Samsung ${formatShortDuration(healthDuration)} · ${differenceSeconds > 0 ? "+" : ""}${differenceSeconds} sec</strong></div>`);
+      }
+      if (healthSpeed !== null) comparisonRows.push(`<div class="run-health-compare"><span>${t("평균 속도", "Avg speed")}</span><strong>PACE ${paceSpeed.toFixed(1)} km/h</strong><strong>Samsung ${healthSpeed.toFixed(1)} km/h</strong></div>`);
+      if (healthSteps !== null) {
+        const differenceSteps = Math.round(stepCount - healthSteps);
+        comparisonRows.push(`<div class="run-health-compare"><span>${t("걸음 수", "Steps")}</span><strong>PACE ${stepCount.toLocaleString(isEnglish ? "en-US" : "ko-KR")}</strong><strong>Samsung ${healthSteps.toLocaleString(isEnglish ? "en-US" : "ko-KR")} · ${differenceSteps > 0 ? "+" : ""}${differenceSteps}</strong></div>`);
+      }
+      const hasZoneRanges = zoneRanges.some(Boolean);
+      const zoneMarkup = totalZoneMinutes > 0
+        ? `<div class="run-health-zones">${zones.map((minutes, index) => `<div class="run-health-zone"><span>${zoneNames[index]}${zoneRanges[index] ? ` · ${zoneRanges[index]} bpm` : ""}</span><div class="run-health-zone-track"><span style="width:${minutes / totalZoneMinutes * 100}%"></span></div><strong>${minutes.toFixed(1)} min</strong></div>`).join("")}</div>`
+        : hasZoneRanges
+          ? `<div class="run-health-zones">${zoneNames.map((name, index) => `<div class="run-health-zone"><span>${name}${zoneRanges[index] ? ` · ${zoneRanges[index]} bpm` : ""}</span><div></div><strong>--</strong></div>`).join("")}<p class="run-health-note">${t("구간별 체류 시간을 입력하면 분포 막대가 표시됩니다.", "Enter time in each zone to show distribution bars.")}</p></div>`
+          : `<p class="run-health-note">${t("평균 심박수만으로는 구간별 시간을 계산할 수 없어요. 삼성헬스의 구간 범위와 시간을 입력하면 표시됩니다.", "Average heart rate cannot determine time in each zone. Enter Samsung Health zone ranges and times to show them here.")}</p>`;
+      const splitRows = [];
       let previousSplitTime = 0;
-      const splitRows = splits.map(split => {
+      const splits = Array.isArray(run.splits) ? run.splits.filter(split => Number.isFinite(split.kilometer) && Number.isFinite(split.elapsedSeconds)) : [];
+      splits.forEach(split => {
         const splitDuration = Math.max(0, split.elapsedSeconds - previousSplitTime);
         previousSplitTime = split.elapsedSeconds;
-        return `<div class="run-split-row"><span>${split.kilometer} km</span><strong>${formatPace(splitDuration, 1)} /km</strong></div>`;
+        splitRows.push(`<div class="run-split-row"><span>${split.kilometer} km</span><strong>${formatPace(splitDuration, 1)} /km</strong></div>`);
       });
       if (splits.length) {
         const lastSplit = splits[splits.length - 1];
         const partialDistance = distance - lastSplit.kilometer;
         const partialDuration = duration - lastSplit.elapsedSeconds;
-        if (partialDistance >= 0.1 && partialDuration > 0) {
-          splitRows.push(`<div class="run-split-row"><span>+${partialDistance.toFixed(1)} km</span><strong>${formatPace(partialDuration, partialDistance)} /km</strong></div>`);
-        }
+        if (partialDistance >= 0.1 && partialDuration > 0) splitRows.push(`<div class="run-split-row"><span>+${partialDistance.toFixed(1)} km</span><strong>${formatPace(partialDuration, partialDistance)} /km</strong></div>`);
       }
-      const goalDetails = goalPercent === null
-        ? t("목표 거리 정보가 저장되지 않은 기록입니다.", "This run has no saved distance goal.")
-        : `${goalPercent}% · ${distance.toFixed(2)} / ${goalDistance.toFixed(1)} km ${goalPercent >= 100 ? t("달성", "completed") : t("진행", "complete")}`;
-      const splitDetails = splitRows.length
+      const splitMarkup = splitRows.length
         ? splitRows.join("")
         : `<p class="run-split-empty">${t("이 기록에는 GPS 구간 데이터가 없어요. 1km 미만 기록 또는 이전 기록일 수 있습니다.", "No GPS split data for this run. It may be under 1 km or an older record.")}</p>`;
-
-      return `<details class="run-analysis"><summary><span>${t("러닝 결과 분석", "Run analysis")}</span><span class="analysis-open-hint">${t("펼쳐 보기", "View details")}</span></summary><div class="run-analysis-body"><div class="run-analysis-grid"><div class="run-analysis-stat"><span>${t("평균 페이스", "Avg pace")}</span><strong>${formatPace(duration, distance)} /km</strong></div><div class="run-analysis-stat"><span>${t("러닝 시간", "Run time")}</span><strong>${formatDuration(duration)}</strong></div><div class="run-analysis-stat"><span>${t("목표 달성률", "Goal completion")}</span><strong>${goalPercent === null ? "--" : `${goalPercent}%`}</strong><div class="run-analysis-progress"><span style="width:${goalPercent === null ? 0 : Math.min(100, goalPercent)}%"></span></div></div><div class="run-analysis-stat"><span>${t("총 걸음 수", "Total steps")}</span><strong>${stepCount ? stepCount.toLocaleString(isEnglish ? "en-US" : "ko-KR") : "--"}</strong></div><div class="run-analysis-stat"><span>${t("평균 보폭 추정", "Est. step length")}</span><strong>${stepLength ? `${stepLength} m` : "--"}</strong><small>${t("GPS 거리 ÷ 걸음 수", "GPS distance / steps")}</small></div><div class="run-analysis-stat"><span>${t("목표 거리", "Distance goal")}</span><strong>${goalDistance > 0 ? `${goalDistance.toFixed(1)} km` : "--"}</strong></div></div><p class="run-analysis-note">${goalDetails}<br>${comparisonText}</p><div class="run-splits"><h4>${t("GPS 1km 구간 페이스", "GPS 1 km splits")}</h4>${splitDetails}</div></div></details>`;
+      const inputField = (field, label, value, step = "1") => `<label class="health-data-field">${label}<input type="number" min="0" step="${step}" inputmode="decimal" data-health-field="${field}" value="${value ?? ""}"></label>`;
+      const zoneFields = Array.from({ length: 5 }, (_, index) => `<label class="health-data-field">${zoneNames[index]} · BPM ${t("범위", "range")}<input type="text" inputmode="numeric" placeholder="${t("최저-최고", "min-max")}" data-health-zone-range="${index}" value="${zoneRanges[index]?.replace("–", "-") ?? ""}"></label><label class="health-data-field">${t("구간", "Zone")} ${index + 1} · ${t("분", "min")}<input type="number" min="0" step="0.1" inputmode="decimal" data-health-zone="${index}" value="${health.zoneMinutes?.[index] ?? ""}"></label>`).join("");
+      const healthSummary = `<section class="run-detail-section"><h4>${t("운동 상세 정보", "Exercise details")}</h4><div class="run-health-grid"><div class="run-health-stat"><span>${t("평균 속도", "Avg speed")}</span><strong>${paceSpeed.toFixed(1)} km/h</strong><small>${t("PACE GPS 계산", "Calculated from PACE GPS")}</small></div><div class="run-health-stat"><span>${t("평균 심박수", "Avg heart rate")}</span><strong>${averageHeartRate === null ? "--" : `${Math.round(averageHeartRate)} bpm`}</strong><small>${averageHeartRate === null ? t("워치 데이터 입력 필요", "Watch data not entered") : "Samsung Health"}</small></div><div class="run-health-stat"><span>${t("소모 칼로리", "Calories")}</span><strong>${calories} kcal</strong><small>${healthCalories === null ? t("PACE 거리 기반 추정", "PACE distance estimate") : "Samsung Health"}</small></div><div class="run-health-stat"><span>${t("총 걸음 수", "Total steps")}</span><strong>${stepCount ? stepCount.toLocaleString(isEnglish ? "en-US" : "ko-KR") : "--"}</strong><small>${t("PACE 모션 센서 추정", "PACE motion estimate")}</small></div><div class="run-health-stat"><span>${t("고도 상승", "Elevation gain")}</span><strong>${elevationGain === null ? "--" : `${Math.round(elevationGain)} m`}</strong><small>${elevationGain === null ? t("워치 데이터 입력 필요", "Watch data not entered") : "Samsung Health"}</small></div>${vo2Max === null ? "" : `<div class="run-health-stat"><span>VO₂ max</span><strong>${vo2Max.toFixed(1)} ml/kg/min</strong><small>Samsung Health</small></div>`}${sweatLoss === null ? "" : `<div class="run-health-stat"><span>${t("땀 손실 추정", "Est. sweat loss")}</span><strong>${Math.round(sweatLoss)} ml</strong><small>Samsung Health</small></div>`}</div></section>`;
+      const comparisonMarkup = comparisonRows.length
+        ? comparisonRows.join("")
+        : `<p class="run-health-note">${t("삼성헬스 수치를 입력하면 거리·시간·걸음 수 차이를 비교합니다.", "Add Samsung Health values to compare distance, time, and steps.")}</p>`;
+      const healthForm = `<details class="health-data-editor"><summary>${t("삼성헬스 데이터 입력 / 수정", "Add / edit Samsung Health data")}</summary><p class="run-health-note">${t("Galaxy Watch 데이터를 직접 입력해요. 이 브라우저는 워치에 직접 연결되지 않습니다.", "Enter Galaxy Watch data manually. This browser does not connect directly to the watch.")}</p><div class="health-data-grid">${inputField("distanceKm", t("삼성 거리 (km)", "Samsung distance (km)"), health.distanceKm, "0.01")}<label class="health-data-field">${t("삼성 운동 시간 (분:초)", "Samsung exercise time (min:sec)")}<input type="text" inputmode="numeric" placeholder="07:34" data-health-duration value="${health.durationSeconds ? formatShortDuration(health.durationSeconds) : ""}"></label>${inputField("averageSpeedKmh", t("평균 속도 (km/h)", "Avg speed (km/h)"), health.averageSpeedKmh, "0.1")}${inputField("averageHeartRateBpm", t("평균 심박수 (bpm)", "Avg heart rate (bpm)"), health.averageHeartRateBpm)}${inputField("caloriesKcal", t("칼로리 (kcal)", "Calories (kcal)"), health.caloriesKcal)}${inputField("steps", t("삼성 걸음 수", "Samsung steps"), health.steps)}${inputField("elevationGainM", t("고도 상승 (m)", "Elevation gain (m)"), health.elevationGainM)}${inputField("vo2Max", "VO₂ max (ml/kg/min)", health.vo2Max, "0.1")}${inputField("sweatLossMl", t("땀 손실 추정 (ml)", "Est. sweat loss (ml)"), health.sweatLossMl)}</div><h4 class="health-zone-input-heading">${t("심박 구간별 시간 (분, 선택)", "Heart rate zone time (min, optional)")}</h4><div class="health-data-grid">${zoneFields}</div><button class="health-data-save" type="button">${t("비교 데이터 저장", "Save comparison data")}</button></details>`;
+      const goalDetails = goalPercent === null ? t("목표 거리 정보가 저장되지 않은 기록입니다.", "This run has no saved distance goal.") : `${goalPercent}% · ${distance.toFixed(2)} / ${goalDistance.toFixed(1)} km ${goalPercent >= 100 ? t("달성", "completed") : t("진행", "complete")}`;
+      const routeSplitLabel = splits.length ? t("GPS 1km 구간 페이스", "GPS 1 km splits") : t("구간 페이스", "Split pace");
+      const comparisonTitle = t("PACE와 Samsung Health 비교", "PACE vs Samsung Health");
+      return `<details class="run-analysis"><summary><span>${t("러닝 결과 분석", "Run analysis")}</span><span class="analysis-open-hint">${t("펼쳐 보기", "View details")}</span></summary><div class="run-analysis-body"><div class="run-result-hero"><div><div class="run-result-distance">${distance.toFixed(2)} <span>km</span></div><div class="run-result-date">${new Date(run.date).toLocaleString(isEnglish ? "en-US" : "ko-KR")}</div></div><strong class="run-result-time">${formatShortDuration(duration)}</strong></div><div class="run-analysis-grid"><div class="run-analysis-stat"><span>${t("평균 페이스", "Avg pace")}</span><strong>${formatPace(duration, distance)} /km</strong></div><div class="run-analysis-stat"><span>${t("목표 달성률", "Goal completion")}</span><strong>${goalPercent === null ? "--" : `${goalPercent}%`}</strong><div class="run-analysis-progress"><span style="width:${goalPercent === null ? 0 : Math.min(100, goalPercent)}%"></span></div></div><div class="run-analysis-stat"><span>${t("평균 보폭 추정", "Est. step length")}</span><strong>${stepLength ? `${stepLength} m` : "--"}</strong><small>${t("GPS 거리 ÷ 걸음 수", "GPS distance / steps")}</small></div><div class="run-analysis-stat"><span>${t("목표 거리", "Distance goal")}</span><strong>${goalDistance > 0 ? `${goalDistance.toFixed(1)} km` : "--"}</strong></div></div><p class="run-analysis-note">${goalDetails}</p>${healthSummary}<section class="run-detail-section"><h4>${t("경로", "Route")}</h4>${routeMarkup}</section><section class="run-detail-section"><h4>${t("심박수 구간", "Heart rate zones")}</h4>${zoneMarkup}</section>${healthForm}<section class="run-detail-section"><h4>${comparisonTitle}</h4>${comparisonMarkup}</section><div class="run-splits"><h4>${routeSplitLabel}</h4>${splitMarkup}</div></div></details>`;
     }
 
     function makeActivityRow(run) {
       const date = new Date(run.date);
       const day = `${dayNames[date.getDay()]}, ${date.toLocaleDateString(isEnglish ? "en-US" : "ko-KR", { month: "long", day: "numeric" })}`;
       const symbol = run.photo ? `<img src="${run.photo}" alt="러닝 사진">` : "↗";
-      return `<article class="activity-record"><div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">${t("야외 러닝", "Outdoor run")}</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>${makeRunAnalysis(run)}</article>`;
+      return `<article class="activity-record" data-run-index="${runs.indexOf(run)}"><div class="activity-row"><div class="activity-symbol">${symbol}</div><div><div class="activity-name">${t("야외 러닝", "Outdoor run")}</div><div class="activity-meta">${day} · ${formatDuration(run.duration)} · ${formatPace(run.duration, run.distance)} /KM</div></div><div class="activity-distance">${run.distance.toFixed(2)} <span style="font-size:9px;color:#777b72">KM</span></div></div>${makeRunAnalysis(run)}</article>`;
+    }
+
+    function parseShortDuration(value) {
+      const parts = value.trim().split(":").map(Number);
+      if (parts.some(part => !Number.isInteger(part) || part < 0) || (parts.length !== 2 && parts.length !== 3)) return null;
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+
+    function initializeRunResultMap(details) {
+      const mapElement = details.querySelector(".run-result-map");
+      if (!mapElement || !window.L) return;
+      const segments = JSON.parse(mapElement.dataset.route || "[]").filter(segment => segment.length);
+      const points = segments.flat();
+      if (!points.length) return;
+      if (mapElement._runResultMap) {
+        setTimeout(() => mapElement._runResultMap.invalidateSize(), 0);
+        return;
+      }
+      const map = L.map(mapElement, { zoomControl: false, scrollWheelZoom: false });
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
+      segments.forEach(segment => L.polyline(segment, { color: "#f26545", weight: 4, lineCap: "round", lineJoin: "round" }).addTo(map));
+      L.circleMarker(points[0], { radius: 5, color: "#174f3c", weight: 2, fillColor: "#d7f36a", fillOpacity: 1 }).addTo(map);
+      L.circleMarker(points[points.length - 1], { radius: 5, color: "#174f3c", weight: 2, fillColor: "#f26545", fillOpacity: 1 }).addTo(map);
+      if (points.length > 1) map.fitBounds(L.latLngBounds(points), { padding: [14, 14] });
+      else map.setView(points[0], 16);
+      mapElement._runResultMap = map;
+      setTimeout(() => map.invalidateSize(), 0);
+    }
+
+    function bindRunAnalysisCards(container) {
+      container.querySelectorAll(".run-analysis").forEach(details => {
+        details.addEventListener("toggle", () => { if (details.open) initializeRunResultMap(details); });
+        details.querySelector(".health-data-save").addEventListener("click", () => {
+          const record = runs[Number(details.closest(".activity-record").dataset.runIndex)];
+          if (!record) return;
+          const healthData = {};
+          for (const input of details.querySelectorAll("[data-health-field]")) {
+            const rawValue = input.value.trim();
+            if (!rawValue) continue;
+            const value = input.dataset.healthField === "durationText" ? parseShortDuration(rawValue) : Number(rawValue);
+            if (value === null || !Number.isFinite(value) || value < 0) {
+              showToast(t("삼성헬스 수치를 확인해 주세요.", "Check the Samsung Health values."));
+              return;
+            }
+            if (input.dataset.healthField === "durationText") healthData.durationSeconds = value;
+            else healthData[input.dataset.healthField] = value;
+          }
+          const durationInput = details.querySelector("[data-health-duration]");
+          if (durationInput.value.trim()) {
+            const durationSeconds = parseShortDuration(durationInput.value);
+            if (durationSeconds === null) {
+              showToast(t("운동 시간은 분:초 형식으로 입력해 주세요.", "Enter exercise time as minutes:seconds."));
+              return;
+            }
+            healthData.durationSeconds = durationSeconds;
+          }
+          const zoneInputs = [...details.querySelectorAll("[data-health-zone]")];
+          const zoneValues = zoneInputs.map(input => input.value.trim());
+          if (zoneValues.some(Boolean) && zoneValues.some(value => !value)) {
+            showToast(t("심박 구간 시간을 입력하려면 1~5구간을 모두 입력해 주세요.", "Enter times for all five heart rate zones, or leave them all blank."));
+            return;
+          }
+          if (zoneValues.every(Boolean)) healthData.zoneMinutes = zoneValues.map(Number);
+          const rangeInputs = [...details.querySelectorAll("[data-health-zone-range]")];
+          const rangeValues = rangeInputs.map(input => input.value.trim());
+          if (rangeValues.some(Boolean) && rangeValues.some(value => !value)) {
+            showToast(t("심박 구간 범위는 1~5구간을 모두 입력해 주세요.", "Enter BPM ranges for all five zones, or leave them all blank."));
+            return;
+          }
+          if (rangeValues.every(Boolean)) {
+            const normalizedRanges = rangeValues.map(value => {
+              const match = value.match(/^(\d{1,3})\s*[-–]\s*(\d{1,3})$/);
+              if (!match) return null;
+              const lower = Number(match[1]);
+              const upper = Number(match[2]);
+              return lower < upper && upper <= 250 ? `${lower}-${upper}` : null;
+            });
+            if (normalizedRanges.some(value => value === null)) {
+              showToast(t("심박 구간은 83-100 형식으로 입력해 주세요.", "Enter heart rate ranges like 83-100."));
+              return;
+            }
+            healthData.zoneRanges = normalizedRanges;
+          }
+          healthData.source = "Samsung Health";
+          const previousHealthData = record.healthData;
+          if (Object.keys(healthData).length > 1) record.healthData = healthData;
+          else delete record.healthData;
+          if (!saveRuns()) {
+            if (previousHealthData) record.healthData = previousHealthData;
+            else delete record.healthData;
+            showToast(t("저장 공간이 부족해 삼성헬스 데이터를 저장하지 못했어요.", "Could not save the Samsung Health data because storage is full."));
+            return;
+          }
+          showToast(t("삼성헬스 데이터를 저장했어요.", "Samsung Health data saved."));
+        });
+      });
+    }
+
+    function renderActivityCards(container, activityRuns) {
+      container.querySelectorAll(".run-result-map").forEach(mapElement => mapElement._runResultMap?.remove());
+      container.innerHTML = activityRuns.length ? activityRuns.map(makeActivityRow).join("") : `<div class="empty">${t("첫 러닝을 마치면 이곳에 기록이 쌓여요.", "Your first run will appear here.")}</div>`;
+      bindRunAnalysisCards(container);
     }
 
     function renderDashboard() {
@@ -917,8 +1099,8 @@
       $("#weekly-goal-badge-value").textContent = `${weeklyGoalKm.toFixed(1)} KM`;
       $("#goal-progress").style.width = `${Math.min(100, weekDistance / weeklyGoalKm * 100)}%`;
       $("#goal-note").textContent = weekDistance >= weeklyGoalKm ? t("이번 주 목표를 달성했어요!", "Weekly goal reached!") : isEnglish ? `${(weeklyGoalKm - weekDistance).toFixed(1)} km to goal` : `목표까지 ${(weeklyGoalKm - weekDistance).toFixed(1)} km 남았어요`;
-      $("#recent-list").innerHTML = runs.length ? runs.slice(0, 3).map(makeActivityRow).join("") : `<div class="empty">${t("아직 기록이 없어요. 첫 러닝을 시작해보세요.", "No runs yet. Start your first run.")}</div>`;
-      $("#all-records").innerHTML = runs.length ? runs.map(makeActivityRow).join("") : `<div class="empty">${t("첫 러닝을 마치면 이곳에 기록이 쌓여요.", "Your first run will appear here.")}</div>`;
+      renderActivityCards($("#recent-list"), runs.slice(0, 3));
+      renderActivityCards($("#all-records"), runs);
       const days = Array(7).fill(0);
       weekRuns.forEach(run => { const index = (new Date(run.date).getDay() + 6) % 7; days[index] += run.distance; });
       const maxDistance = Math.max(4, ...days);
@@ -1151,6 +1333,15 @@
       const latitude2 = toRadians(secondPosition.latitude);
       const haversine = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(latitude1) * Math.cos(latitude2) * Math.sin(longitudeDelta / 2) ** 2;
       return 6371000 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+    }
+
+    function compactRunRoute(segments) {
+      const validSegments = segments.filter(segment => Array.isArray(segment) && segment.length);
+      const pointCount = validSegments.reduce((sum, segment) => sum + segment.length, 0);
+      const stride = Math.max(1, Math.ceil(pointCount / 700));
+      return validSegments.map(segment => segment
+        .filter((_, index) => index === 0 || index === segment.length - 1 || index % stride === 0)
+        .map(point => point.map(coordinate => Number(Number(coordinate).toFixed(5)))));
     }
 
     function startLocationWatch() {
@@ -1405,8 +1596,10 @@
 
     function finishRun() {
       if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+      let finishedRecord = null;
       if (elapsedSeconds > 0 || distanceKm > 0 || runPhotoDataUrl) {
-        runs.unshift({ date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, splits: runSplits.map(split => ({ ...split })), photo: runPhotoDataUrl });
+        finishedRecord = { date: new Date().toISOString(), duration: elapsedSeconds, distance: distanceKm, goalDistance: targetDistanceKm, steps: totalStepCount, splits: runSplits.map(split => ({ ...split })), route: compactRunRoute(routeSegments), photo: runPhotoDataUrl };
+        runs.unshift(finishedRecord);
         if (!saveRuns()) {
           runs.shift();
           showToast(runPhotoDataUrl ? t("저장 공간이 부족해요. 사진을 제거하거나 공간을 확보한 뒤 다시 저장해 주세요.", "Storage is full. Remove the photo or free space, then try saving again.") : t("기기 저장소를 사용할 수 없어 기록을 저장하지 못했어요.", "Device storage is unavailable, so the run could not be saved."));
@@ -1468,6 +1661,14 @@
       $("#finish-run").disabled = true;
       $("#location-note").textContent = t("시작을 누르면 위치 권한을 요청합니다.", "Start to request location access.");
       $("#run-dialog").close();
+      if (finishedRecord) {
+        $("[data-view=records]").click();
+        const resultDetails = $("#all-records .run-analysis");
+        if (resultDetails) {
+          resultDetails.open = true;
+          initializeRunResultMap(resultDetails);
+        }
+      }
     }
 
     function showToast(message) {
